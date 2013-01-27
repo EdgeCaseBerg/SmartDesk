@@ -1,0 +1,14 @@
+Plan:
+
+C for efficiency and solid code (release)
+Java for prototyping new ideas quickly and dirty
+
+Data Structure for sending information:
+ Larger objects are serialized
+ Realtime point to point done by simpler things such as sending bytes
+
+Initial thoughts for files:
+ sending information for plotting points down should be done as minimally as possible. 
+ Storing this information... ?
+ Using SDL for openGL? 
+ 
