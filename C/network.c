@@ -23,6 +23,8 @@ by including network.h
 #include <assert.h>
 //Rather random, but file descriptor sets are stored in time. who knows why... Aliens.
  #include <sys/time.h> 
+//For EAGAIN
+#include <errno.h>
 
 //Work around for my apparently messed up header:
 #ifndef SOL_TCP
@@ -138,13 +140,12 @@ int main(){
 	int other;
 	printf("%i\n",isDataReady(&readset,test));
 	other = accept(test,NULL,NULL);
+	//http://stackoverflow.com/questions/7635440/error-on-accept-resource-temporarily-unavailable
 	if(other == -1){
-		perror("other");
+		if(errno != EAGAIN){
+			perror("other");	
+		}
 	}
-	if(other = connect(other,(struct sockaddr*)&address,sizeof(address))==0){
-		puts("connection success");
-	}
-	printf("%d\n",other );
 	puts("hi");
 	sleep(2);
 	puts("bye");
