@@ -19,6 +19,8 @@ by including network.h
 #include <fcntl.h>
 //Let's get our assert on
 #include <assert.h>
+//Rather random, but file descriptor sets are stored in time. who knows why... Aliens.
+ #include <sys/time.h> 
 
 //Work around for my apparently messed up header:
 #ifndef SOL_TCP
@@ -33,6 +35,8 @@ createSocket takes the port and string form of an ip address and returns
 the socket descriptor (int) if successful in creating the port, or -1 on 
 failure. Note that this binds the port. If you're trying to create a port
 from for a listen command, this id one by the listen function
+port: The port to be bound to
+ip_address: The string representation of the ip address
 */
 int createSocket(uint16_t port, const char * ip_address){
 	//double check the ip address pointer is not null
@@ -83,15 +87,45 @@ int createSocket(uint16_t port, const char * ip_address){
 	result = bind(socketIdentity, (struct sockaddr*)&address, sizeof(address));
 
 	if(result!=0){
-		perror("Error binding sockey to address and port");
+		perror("Error binding socket to address and port");
 	}
 
 	return socketIdentity;
 }
 
+/*Checks to see if there is any data ready to be accepted on the current set of sockets
+	sockSet: 	The set of sockets we might accept data on
+	maxFileDescriptor: The highest numbered file descriptor so far, this is needed for the polling
+  This function will poll the fd_set given in sockSet, and possibly modify it. It is wise to create
+  a working set from whatever socket set you're wanting to poll. Returns the number of ready sockets
+  in the set, or -1 if there was an error
+*/
+int isDataReady(fd_set * sockSet, const int * maxFileDescriptor ){
+	int result;
+	//Time structure, 0's becuase of polling
+	struct timeval timeout;
+	timeout.tv_sec = 0;
+	timeout.tv_sec = 0;
+
+	//Select likes it's highest descriptor +1 for whatever reason...
+	//NULL's because we dont need a writing or exception set if we're polling
+	result = select((*maxFileDescriptor) +1, sockSet,NULL,NULL,&timeout);
+
+	if(result < 0){
+		perror("select failed");
+		return -1;
+	}
+
+	return result;
+}
+
+
+
 int main(){
-	//Poke port!
+	//Fun fact: 30001 is defined as the PokePort, which is the port used in a network pokemon game
 	int test = createSocket(30001,"127.0.0.1");
+	//Listen does not need an abstraction on top of it
+	listen(test,10);
 
 	puts("hi");
 	sleep(2);
