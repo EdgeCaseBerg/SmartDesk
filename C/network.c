@@ -13,6 +13,8 @@ by including network.h
 #include <sys/socket.h> 
 //If we don't include netinet then we dont know the sizeof(sockaddr_in)
 #include <netinet/in.h> 
+//Get the correct header for inet_ntoa
+#include <arpa/inet.h>
 //For perror
 #include <stdio.h>
 //For binding in non blocking mode
@@ -37,8 +39,9 @@ failure. Note that this binds the port. If you're trying to create a port
 from for a listen command, this id one by the listen function
 port: The port to be bound to
 ip_address: The string representation of the ip address
+address: The sockaddr_in struct to fill with the information for the socket (needed to be used by accept)
 */
-int createSocket(uint16_t port, const char * ip_address){
+int createSocket(uint16_t port, const char * ip_address,struct sockaddr_in * address){
 	//double check the ip address pointer is not null
 	assert(ip_address != NULL);
 
@@ -51,16 +54,12 @@ int createSocket(uint16_t port, const char * ip_address){
 		return -1;
 	}
 
-	//This is the standard struct used by C for internet addresses 
-	struct sockaddr_in address;
-
-
 	//We're using ipv4 settings by saying AF_INET
-	address.sin_family = AF_INET;
+	address->sin_family = AF_INET;
 	//htons converts 3490's bytes into a form the network can process
-	address.sin_port = htons(port);
+	address->sin_port = htons(port);
 	//Convert an ip address into it's network byte form and store it in our struct
-	inet_aton(ip_address, &address.sin_addr.s_addr);
+	address->sin_addr.s_addr = inet_addr(ip_address);
 
 	//We want to be able to reuse ip addresses:
 	int opt = 1;
@@ -84,7 +83,7 @@ int createSocket(uint16_t port, const char * ip_address){
 
 	//Bind the socket to the port we've described
 	int result;
-	result = bind(socketIdentity, (struct sockaddr*)&address, sizeof(address));
+	result = bind(socketIdentity, (struct sockaddr*)address, sizeof(*address));
 
 	if(result!=0){
 		perror("Error binding socket to address and port");
@@ -100,7 +99,7 @@ int createSocket(uint16_t port, const char * ip_address){
   a working set from whatever socket set you're wanting to poll. Returns the number of ready sockets
   in the set, or -1 if there was an error
 */
-int isDataReady(fd_set * sockSet, const int * maxFileDescriptor ){
+int isDataReady(fd_set * sockSet, const int maxFileDescriptor ){
 	int result;
 	//Time structure, 0's becuase of polling
 	struct timeval timeout;
@@ -109,7 +108,7 @@ int isDataReady(fd_set * sockSet, const int * maxFileDescriptor ){
 
 	//Select likes it's highest descriptor +1 for whatever reason...
 	//NULL's because we dont need a writing or exception set if we're polling
-	result = select((*maxFileDescriptor) +1, sockSet,NULL,NULL,&timeout);
+	result = select(maxFileDescriptor +1, sockSet,NULL,NULL,&timeout);
 
 	if(result < 0){
 		perror("select failed");
@@ -122,11 +121,29 @@ int isDataReady(fd_set * sockSet, const int * maxFileDescriptor ){
 
 
 int main(){
+	//This is the standard struct used by C for internet addresses 
+	struct sockaddr_in address, otherAddr;	
+	fd_set readset;
+	FD_ZERO(&readset);
 	//Fun fact: 30001 is defined as the PokePort, which is the port used in a network pokemon game
-	int test = createSocket(30001,"127.0.0.1");
+	int test = createSocket(30001,"127.0.0.1",&address);
+	
+	
+	FD_SET(test,&readset);
 	//Listen does not need an abstraction on top of it
 	listen(test,10);
 
+	
+
+	int other;
+	printf("%i",isDataReady(&readset,test));
+	other = accept(test,NULL,NULL);
+	if(other == -1){
+		perror("other");
+	}
+	if(connect(other,(struct sockaddr*)&address,sizeof(address))==0){
+		puts("connection success");
+	}
 	puts("hi");
 	sleep(2);
 	puts("bye");
