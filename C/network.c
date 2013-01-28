@@ -136,14 +136,15 @@ int main(){
 	
 
 	int other;
-	printf("%i",isDataReady(&readset,test));
+	printf("%i\n",isDataReady(&readset,test));
 	other = accept(test,NULL,NULL);
 	if(other == -1){
 		perror("other");
 	}
-	if(connect(other,(struct sockaddr*)&address,sizeof(address))==0){
+	if(other = connect(other,(struct sockaddr*)&address,sizeof(address))==0){
 		puts("connection success");
 	}
+	printf("%d\n",other );
 	puts("hi");
 	sleep(2);
 	puts("bye");
