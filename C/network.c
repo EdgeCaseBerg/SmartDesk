@@ -14,6 +14,14 @@ Networking Test file.
 //For perror
 #include <stdio.h>
 
+
+/*
+
+*/
+int createSocket(uint16_t port, const char * ip_address){
+
+}
+
 int main(){
 	//Create a socket 
 	int socketIdentity;

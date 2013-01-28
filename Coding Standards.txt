@@ -1,0 +1,27 @@
+Coding Standards:
+
+Braces should not waste verticle space:
+
+
+	if(somefunction()){
+		//...
+	}
+
+	do not do this:
+	if(somefunction())
+	{
+		//...
+	}
+
+
+Function names should be camel case:
+do: someReallyLongButRatherDescriptiveFunctionName()
+do not: some_really_long_function_name()
+
+Constants should be in all caps:
+CONST CHAR * BACON = "I LOVE BACON"
+
+Comments should be descriptive, and describe oddities in code or 
+explain why an include is needed, etc.... no need to comment while
+loops like: "this is a while loop bla"
+
