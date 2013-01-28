@@ -18,3 +18,39 @@ Initial thoughts for files:
  Storing this information... ?
  Using SDL for openGL? 
 
+idea for program flow for a desk:
+-Initalize everything
+--This could be everything from opening connections to the classroom to logging in
+-Begin core loop
+--Don't know exactly how this will work yet, but within the graphics loop we'll have to
+  call the network to see if there's any incoming requests for anything. Then we'll handle
+  those as they come. 
+  Because of this, we'll have to be able to support some type of asynchronous events or
+  we'll use the nonnblocking network ports to query the port for anything new.
+
+-network.c
+	This file is going to become something like the common base that each desk sits on
+  	Since I hope for each desk to be able to accept and send incoming messages and data
+  	each desk has to function as a mini desk. There isn't a true client-server relationship
+  	and it's more of a distributed network with a sink (the teachers desk). So the basics
+  	network functionality will all be the same, but the operations available to the desk
+  	and to the teachers table will be different. For example, the teacher should be able to
+  	'collect' work done by the students. Which would probably be something like
+     	-Teacher hits a button to collect work, signal is broadcasted to each desk
+     	-Each desk processes the request, saves its work and sends it back to the teacher
+     	-the teachers desk is flooded by incoming connections and explodes... I mean,
+     	-the teachers desk recieves the incoming messages and files them away correctly
+
+-engine
+	This file will hopefully glue everything together, running the core operations loop:
+		-Check for new data via network
+		-update graphics according
+		-process user input
+		-send out updates if transmitting
+
+-desk
+	Holds defitions of the desk structure and operation that would affect it as a whole
+
+-graphics
+	Basic functionality for graphics and drawing
+

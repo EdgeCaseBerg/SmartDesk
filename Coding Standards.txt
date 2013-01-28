@@ -1,5 +1,8 @@
 Coding Standards:
 
+At the beginning of each file there should be a statement of what
+the function defines in a general sense, and any important information
+
 Braces should not waste verticle space:
 
 

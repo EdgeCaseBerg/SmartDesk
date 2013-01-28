@@ -106,7 +106,7 @@ int isDataReady(fd_set * sockSet, const int maxFileDescriptor ){
 	//Time structure, 0's becuase of polling
 	struct timeval timeout;
 	timeout.tv_sec = 0;
-	timeout.tv_sec = 0;
+	timeout.tv_usec = 0;
 
 	//Select likes it's highest descriptor +1 for whatever reason...
 	//NULL's because we dont need a writing or exception set if we're polling
