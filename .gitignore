@@ -1,5 +1,5 @@
 #C ignores
-*.o
+C/*.o
 
 #Java ignores
 Java/*.class
