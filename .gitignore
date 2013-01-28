@@ -1,4 +1,5 @@
 #C ignores
+C/*.out
 C/*.o
 
 #Java ignores
