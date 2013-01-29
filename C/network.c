@@ -25,6 +25,12 @@ by including network.h
  #include <sys/time.h> 
 //For EAGAIN
 #include <errno.h>
+//Need mmap for interprocess comm
+#include <sys/mman.h>
+
+//Non standard includes:
+#include "conf.h"
+#include "network.h"
 
 //Work around for my apparently messed up header:
 #ifndef SOL_TCP
@@ -33,6 +39,8 @@ by including network.h
 #ifndef TCP_NODELAY
 	#define TCP_NODELAY 1
 #endif
+
+
 
 /*
 createSocket takes the port and string form of an ip address and returns
@@ -121,9 +129,23 @@ int isDataReady(fd_set * sockSet, const int maxFileDescriptor ){
 }
 
 /*Set's up the memory share for the module and initializes network connections
+	fd: File descriptor for file to write to
+	module: NetworkModule struct to fill out with information
+Really good example of nonblocking io.
+http://publib.boulder.ibm.com/infocenter/iseries/v5r3/index.jsp?topic=%2Frzab6%2Frzab6xnonblock.htm 
 
+Returns -1 on failure, 0 on success
 */
-void setupNetworkModule(){
+int setupNetworkModule(int fd, NetworkModule * module){
+	//Set up the memory share:
+	// Write only for the network, it doesn't need to read it at all
+	void * addr = 0;
+	addr = mmap(NULL, MEMSHARESIZE, PROT_WRITE, MAP_SHARED, fd, 0);
+	if(addr == MAP_FAILED){
+		puts("Failed to map memory share to network module");
+		return -1;
+	}
+	module->memShareAddr = addr;
 
 }
 
