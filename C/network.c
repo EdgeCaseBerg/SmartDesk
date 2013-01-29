@@ -120,6 +120,13 @@ int isDataReady(fd_set * sockSet, const int maxFileDescriptor ){
 	return result;
 }
 
+/*Set's up the memory share for the module and initializes network connections
+
+*/
+void setupNetworkModule(){
+
+}
+
 
 
 int main(){
