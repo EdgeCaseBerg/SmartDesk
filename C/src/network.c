@@ -181,7 +181,7 @@ int isDataReady(fd_set * sockSet, const int maxFileDescriptor ){
 
 
 //This is sorta my testing function...
-int main(){
+int test(){
 	//This is the standard struct used by C for internet addresses 
 	struct sockaddr_in address, otherAddr;	
 	fd_set readset;

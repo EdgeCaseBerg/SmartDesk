@@ -18,10 +18,16 @@ made and such.
 
 */
 
+//System Includes
 #include "conf.h"			
 #include <sys/mman.h>		//Allows use of mmap
 #include <fcntl.h>    		//For file constants (read write,create,permissions...)
 #include <assert.h> 
+#include <pthread.h>		//For threading processes
+
+
+//Nonsystem Includes
+#include "network.h"
 
 /*Creates the memory to be shared between the network and graphics processes
 *returns -1 on failure, file descriptor for shared file on success
@@ -55,10 +61,24 @@ int createMemShare(){
 *		   graphics and network (passed as void due to pthread, but cast to int)
 */
 void * createAndRunNetwork(void *memFD){
+	//Dereference the passed in integer
+	int fd = *((int *) memFD);
+	NetworkModule nm;
 
+	setupNetworkModule(fd,&nm);
+
+	return NULL;
 }
 
+/*Function to pass to pthread for graphics, creates the graphics process
+*	memFD: The file descriptor for the file being memory mapped between
+*		   graphics and network (passed as void due to pthread, but cast to int)
+*/
+void * createAndRunGraphics(void *memFD){
+	int fd = *((int *) memFD);
 
+	return NULL;
+}
 
 int main(int argc, char const *argv[])
 {
@@ -68,6 +88,17 @@ int main(int argc, char const *argv[])
 	assert(memS != -1);
 
 	//Create the threads for the graphics,network,logger, and anything else.
+	pthread_t nThread, gThread;
+
+	int nProcThreaded = pthread_create(&nThread,NULL,createAndRunNetwork,(void *)&memS);
+	int gProcThreaded = pthread_create(&gThread,NULL,createAndRunGraphics,(void *)&memS);
+
+	puts("threads");
+
+	//Join
+	pthread_join( nThread, NULL);
+    pthread_join( gThread, NULL);
+
 
 	if(unlink(MEMSHARENAME) < 0){
 		puts("Issue removing memory share for engine");

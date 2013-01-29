@@ -1,6 +1,8 @@
 #C ignores
 C/*.out
 C/*.o
+C/obj/*.o
+C/bin/*
 
 #Java ignores
 Java/*.class
