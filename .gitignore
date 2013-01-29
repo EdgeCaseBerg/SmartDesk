@@ -4,3 +4,7 @@ C/*.o
 
 #Java ignores
 Java/*.class
+
+#Ignore examples I use to understand concepts more
+examples/*.*
+examples/*
