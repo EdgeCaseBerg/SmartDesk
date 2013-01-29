@@ -27,6 +27,8 @@ by including network.h
 #include <errno.h>
 //Need mmap for interprocess comm
 #include <sys/mman.h>
+//malloc and free
+#include <stdlib.h>
 
 //Non standard includes:
 #include "conf.h"
@@ -40,6 +42,54 @@ by including network.h
 	#define TCP_NODELAY 1
 #endif
 
+
+
+
+//Free's memory used by the NetworkModule
+void destroyNetworkModule(NetworkModule * module){
+	free(module->memShareAddr);
+	close(module->memShareFD);
+}
+
+//Instantiates the networkModule returns -1 on failure, 0 on success
+int createNetworkModule(NetworkModule * module){
+	module->memShareAddr = (void*)malloc(sizeof(void*));
+	module->memShareFD = -1;
+	if(module->memShareAddr == NULL){
+		return -1;
+	}
+	return 0;
+}
+
+/*Set's up the memory share for the module and initializes network connections. Also calls
+  createNetworkModule, so you only need to pass an uninitialized struct of NetworkModule to
+  the function, it will handle instantiating it for you.
+	fd: File descriptor for file to write to
+	module: NetworkModule struct to fill out with information
+Really good example of nonblocking io.
+http://publib.boulder.ibm.com/infocenter/iseries/v5r3/index.jsp?topic=%2Frzab6%2Frzab6xnonblock.htm 
+
+Returns -1 on failure, 0 on success
+*/
+int setupNetworkModule(int fd, NetworkModule * module){
+	int result = createNetworkModule(module);
+	if(result == -1){
+		puts("Problem allocating memory for network module");
+		return -1;
+	}
+
+	//Set up the memory share:
+	// Write only for the network, it doesn't need to read it at all
+	module->memShareAddr = mmap(NULL, MEMSHARESIZE, PROT_WRITE, MAP_SHARED, fd, 0);
+	if(module->memShareAddr == MAP_FAILED){
+		puts("Failed to map memory share to network module");
+		free(module->memShareAddr);
+		return -1;
+	}
+	module->memShareFD = fd;
+
+	return 0;
+}
 
 
 /*
@@ -128,29 +178,9 @@ int isDataReady(fd_set * sockSet, const int maxFileDescriptor ){
 	return result;
 }
 
-/*Set's up the memory share for the module and initializes network connections
-	fd: File descriptor for file to write to
-	module: NetworkModule struct to fill out with information
-Really good example of nonblocking io.
-http://publib.boulder.ibm.com/infocenter/iseries/v5r3/index.jsp?topic=%2Frzab6%2Frzab6xnonblock.htm 
-
-Returns -1 on failure, 0 on success
-*/
-int setupNetworkModule(int fd, NetworkModule * module){
-	//Set up the memory share:
-	// Write only for the network, it doesn't need to read it at all
-	void * addr = 0;
-	addr = mmap(NULL, MEMSHARESIZE, PROT_WRITE, MAP_SHARED, fd, 0);
-	if(addr == MAP_FAILED){
-		puts("Failed to map memory share to network module");
-		return -1;
-	}
-	module->memShareAddr = addr;
-
-}
 
 
-
+//This is sorta my testing function...
 int main(){
 	//This is the standard struct used by C for internet addresses 
 	struct sockaddr_in address, otherAddr;	
@@ -181,5 +211,14 @@ int main(){
 
 	//Close the port
 	close(test);
+
+	NetworkModule nm;
+
+	//Just testing the network creating
+	createNetworkModule(&nm);
+	printf("%p\n", nm.memShareAddr );
+	destroyNetworkModule(&nm);
+
+	return 0;
 
 }

@@ -7,8 +7,26 @@
 
 typedef struct {
 	void * memShareAddr;
-
+	int memShareFD;
+	//Probably gonna end up putting an fd_set in here... the master set anyway, not the working set
 } NetworkModule;
+
+//Free's memory used by the NetworkModule
+void destroyNetworkModule(NetworkModule * module);
+
+//Instantiates the networkModule, returns -1 on failure 0 on success
+int createNetworkModule(NetworkModule * module);
+
+/*Set's up the memory share for the module and initializes network connections
+	fd: File descriptor for file to write to
+	module: NetworkModule struct to fill out with information
+Really good example of nonblocking io.
+http://publib.boulder.ibm.com/infocenter/iseries/v5r3/index.jsp?topic=%2Frzab6%2Frzab6xnonblock.htm 
+
+Returns -1 on failure, 0 on success
+*/
+int setupNetworkModule(int fd, NetworkModule * module);
+
 
 /*
 createSocket takes the port and string form of an ip address and returns
@@ -30,14 +48,5 @@ int createSocket(uint16_t port, const char * ip_address,struct sockaddr_in * add
 */
 int isDataReady(fd_set * sockSet, const int maxFileDescriptor );
 
-/*Set's up the memory share for the module and initializes network connections
-	fd: File descriptor for file to write to
-	module: NetworkModule struct to fill out with information
-Really good example of nonblocking io.
-http://publib.boulder.ibm.com/infocenter/iseries/v5r3/index.jsp?topic=%2Frzab6%2Frzab6xnonblock.htm 
-
-Returns -1 on failure, 0 on success
-*/
-int setupNetworkModule(int fd, NetworkModule * module);
 
 #endif
