@@ -1,6 +1,6 @@
 #ifndef __ENGINE_H__
 	#define __ENGINE_H__
-#endif
+
 
 //Run the basic network accept loop and update the structure holding information
 void processNewData();
@@ -10,3 +10,6 @@ void updateGraphics();
 void processUserInput();
 //Update if transmitting to another desk
 void updateRemote();
+
+
+#endif

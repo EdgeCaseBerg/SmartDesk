@@ -17,6 +17,9 @@ Initial thoughts for files:
  sending information for plotting points down should be done as minimally as possible. 
  Storing this information... ?
  Using SDL for openGL? 
+ Use pthreads or forks to make the engine run both the network and the graphics at the same time
+ using pthreads would allow for shared memory so the network could pump information easily to the
+ graphics
 
 idea for program flow for a desk:
 -Initalize everything
