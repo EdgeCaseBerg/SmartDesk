@@ -8,9 +8,13 @@
 * To be honest I've gotta set up some type of protocol for reading from the
 *thing. It's easy enough to sync the memory on each call, but how do I know
 *if I'm reading 'too fast' and the networking isn't giving me anything? There
-*needs to be some null value coming in from the file or something
+*needs to be some null value coming in from the file or something. Or a global
+*count of how many bytes I've written so far. Then graphics reads up to that, if
+*the reading count is higher than the writting count than the writer looped around
+*the file and began writing at the beginning, so we need to reflect that...
 *
-* 
+* I could have the writer write the offset it's on at the 0th byte so the reader 
+*could just msync, read that, and then continue on... 
 */
 
 //System includes
