@@ -65,7 +65,12 @@ void * createAndRunNetwork(void *memFD){
 	int fd = *((int *) memFD);
 	NetworkModule nm;
 
-	setupNetworkModule(fd,&nm);
+	if(setupNetworkModule(fd,&nm) < 0){
+		puts("Failed setting up NetworkModule");
+		return NULL;
+	}
+
+	
 
 	return NULL;
 }
@@ -93,7 +98,8 @@ int main(int argc, char const *argv[])
 	int nProcThreaded = pthread_create(&nThread,NULL,createAndRunNetwork,(void *)&memS);
 	int gProcThreaded = pthread_create(&gThread,NULL,createAndRunGraphics,(void *)&memS);
 
-	puts("threads");
+
+
 
 	//Join
 	pthread_join( nThread, NULL);
