@@ -2,11 +2,15 @@
 
 CC=gcc
 
-bin/engine: obj/engine.o obj/network.o 
-	$(CC) -I -o bin/engine obj/network.o obj/engine.o -lpthread
+bin/engine: bin/engine.o bin/network.o 
+	$(CC) -o bin/engine bin/network.o bin/engine.o -lpthread
 
-obj/network.o: src/conf.h src/network.h src/network.c
-	$(CC) -I -c src/network.c -o obj/network.o
+bin/engine.o: src/engine.c src/engine.h src/conf.h
+	$(CC) -c src/engine.c -o bin/engine.o
 
-obj/engine.o: obj/network.o src/engine.c src/conf.h
-	$(CC) -I -c src/engine.c obj/network.o -lpthread -o obj/engine.o
+bin/network.o: src/conf.h src/network.h src/network.c
+	$(CC) -c src/network.c -o bin/network.o
+
+
+clean:
+	rm -rf ./bin/*
