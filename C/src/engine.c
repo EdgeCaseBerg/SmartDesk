@@ -69,9 +69,11 @@ void * createAndRunNetwork(void *memFD){
 		puts("Failed setting up NetworkModule");
 		return NULL;
 	}
+	//We can close the fd because mmap keeps a reference to it
+	//and mmap will clean itself when no one references it.
+	close(fd);
 
 	//Let's try a write to the mapped file
-	//write(nm.memShareAddr, 0xFFFFAAAA,8);
 	*(((int *)nm.memShareAddr)) = 0xFFFFAAAA;
 	*(((int *)nm.memShareAddr)+1) = 0xFFFFAAAA;
 	
@@ -90,7 +92,10 @@ void * createAndRunGraphics(void *memFD){
 	//For now we're going to test a little in here.
 	void * map = mmap(NULL, MEMSHARESIZE, PROT_READ, MAP_SHARED, fd, 0);
 	msync(map,sizeof(int),MS_SYNC|MS_INVALIDATE);
-	int test = *((int *)map);
+	close(fd);
+	
+	puts("reading");
+	int test = *((int *)map+1);
 	printf("%d\n",test );
 
 	return NULL;

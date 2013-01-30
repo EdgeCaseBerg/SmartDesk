@@ -8,7 +8,7 @@
 	* I'll be able to store 131,072 numbers at a time, plenty to
 	* play with...
 	*/
-	#define MEMSHARESIZE 1024 * 1024
+	#define MEMSHARESIZE 1024 * 512
 	#define MEMSHARENAME "Network-Graphic-MemShare.mshare"
 
 
