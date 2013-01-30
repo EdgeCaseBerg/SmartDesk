@@ -24,7 +24,7 @@ made and such.
 #include <fcntl.h>    		//For file constants (read write,create,permissions...)
 #include <assert.h> 
 #include <pthread.h>		//For threading processes
-
+#include <stdio.h>
 
 //Nonsystem Includes
 #include "network.h"
@@ -70,7 +70,12 @@ void * createAndRunNetwork(void *memFD){
 		return NULL;
 	}
 
+	//Let's try a write to the mapped file
+	//write(nm.memShareAddr, 0xFFFFAAAA,8);
+	*(((int *)nm.memShareAddr)) = 0xFFFFAAAA;
+	*(((int *)nm.memShareAddr)+1) = 0xFFFFAAAA;
 	
+	msync(nm.memShareAddr,sizeof(int),MS_SYNC|MS_INVALIDATE);
 
 	return NULL;
 }
@@ -81,6 +86,12 @@ void * createAndRunNetwork(void *memFD){
 */
 void * createAndRunGraphics(void *memFD){
 	int fd = *((int *) memFD);
+
+	//For now we're going to test a little in here.
+	void * map = mmap(NULL, MEMSHARESIZE, PROT_READ, MAP_SHARED, fd, 0);
+	msync(map,sizeof(int),MS_SYNC|MS_INVALIDATE);
+	int test = *((int *)map);
+	printf("%d\n",test );
 
 	return NULL;
 }
@@ -98,16 +109,13 @@ int main(int argc, char const *argv[])
 	int nProcThreaded = pthread_create(&nThread,NULL,createAndRunNetwork,(void *)&memS);
 	int gProcThreaded = pthread_create(&gThread,NULL,createAndRunGraphics,(void *)&memS);
 
-
-
-
 	//Join
 	pthread_join( nThread, NULL);
     pthread_join( gThread, NULL);
 
-
-	if(unlink(MEMSHARENAME) < 0){
-		puts("Issue removing memory share for engine");
-	}
+    //This is commented out while I manipulate the mapped file to get a feel.
+	//if(unlink(MEMSHARENAME) < 0){
+	//	puts("Issue removing memory share for engine");
+	//}
 	return 0;
 }
