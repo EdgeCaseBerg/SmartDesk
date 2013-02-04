@@ -11,5 +11,13 @@ int createMemShare();
 */
 void createAndRunNetwork(void * memFD);
 
+/*Function to pass to pthread for graphics, creates the graphics process
+*	memFD: The file descriptor for the file being memory mapped between graphics
+*		   and  network (passed as void due to pthread, but cast to int)
+*/
+void * createAndRunGraphics(void *memFD);
+
+
+
 
 #endif

@@ -14,6 +14,7 @@ Compiling:
 Data Structure for sending information:
  Larger objects are serialized
  Realtime point to point done by simpler things such as sending bytes
+ Use a database backend to push files there, then query them from host/destination
 
 Initial thoughts for files:
  sending information for plotting points down should be done as minimally as possible. 
@@ -22,6 +23,8 @@ Initial thoughts for files:
  Use pthreads or forks to make the engine run both the network and the graphics at the same time
  using pthreads would allow for shared memory so the network could pump information easily to the
  graphics
+ It may be a good idea to create some type of structure to deal with my mmap-ed files
+ as I dont want to step overbounds of their size when writing and such
 
 idea for program flow for a desk:
 -Initalize everything
