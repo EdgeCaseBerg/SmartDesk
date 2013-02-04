@@ -72,13 +72,8 @@ void * createAndRunNetwork(void *memFD){
 	//We can close the fd because mmap keeps a reference to it
 	//and mmap will clean itself when no one references it.
 	close(fd);
-
-	//Let's try a write to the mapped file
-	*(((int *)nm.memShareAddr)) = 0xFFFFAAAA;
-	*(((int *)nm.memShareAddr)+1) = 0xFFFFAAAA;
+	runServer(&nm);
 	
-	msync(nm.memShareAddr,sizeof(int),MS_SYNC|MS_INVALIDATE);
-
 	return NULL;
 }
 

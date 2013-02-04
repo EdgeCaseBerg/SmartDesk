@@ -57,6 +57,7 @@ int createNetworkModule(NetworkModule * module){
 	module->memShareAddr = (void*)malloc(sizeof(void*));
 	module->memShareFD   = -1;
 	module->serverSockFD = -1;
+	module->memSeekInt = 0;
 	if(module->memShareAddr == NULL){
 		return -1;
 	}
@@ -126,19 +127,61 @@ void runServer(NetworkModule * module){
 	//Set up client structures for incoming messages
 	struct sockaddr_in cli_addr;
 	
-	char buffer[256];
-	memset(buffer,0,256);
-
 	//list for incoming messages. (up to 5)
 	//Note that 5 is chosen because its the max for most systems
 	listen(module->serverSockFD,5);
 
 	//This is where we would accept an incoming message
-	puts("yo");
+	puts("Server Running");
+
+	//This part should loop, but for testing purposes just once
+	//Accept an incoming connection
+	int incomingFD = accept(module->serverSockFD,
+							(struct sockaddr *) &cli_addr,
+							(socklen_t*)sizeof(cli_addr));
+
+	handleIncoming(incomingFD, module);
+
+	//Let's try a write to the mapped file
+	*(((int *)module->memShareAddr)) = 0xFFFFAAAA;
+	*(((int *)module->memShareAddr)+1) = 0xFFFFAAAA;
+	
+	msync(module->memShareAddr,sizeof(int),MS_SYNC|MS_INVALIDATE);
+}
+
+
+void handleIncoming(int fd, NetworkModule * module){
+	char buffer[256];
+	memset(buffer,0,256);
+
+	int bytesRead = 0;
+	bytesRead = read(fd,buffer,255);
+
+	if(bytesRead < 0){
+		puts("I read no bytes");
+		return;
+	}
+
+	//Handle the Size of our file pointer getting crazy
+	if(module->memSeekInt + bytesRead >= MEMSHARESIZE){
+		//Essentially loop it around
+		module->memSeekInt=0;
+	}
+
+	//Load the buffer to the shared memory
+	int i;
+	for(i =0; i < bytesRead; i++){
+		//Write to the buffer at the current seek position
+		*(((int *)module->memShareAddr)+module->memSeekInt+i) = buffer[i];	
+	}
+	module->memSeekInt = module->memSeekInt + bytesRead;	
+
+	msync(module->memShareAddr,sizeof(int),MS_SYNC|MS_INVALIDATE);
+
 }
 
 //This is sorta my testing function...
-int main(){
+int test(){
 	NetworkModule nm;
 
 	//Just testing the network creating

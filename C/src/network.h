@@ -8,6 +8,7 @@
 typedef struct {
 	void * memShareAddr;
 	int memShareFD;
+	int memSeekInt;
 	int serverSockFD;
 	//Probably gonna end up putting an fd_set in here... the master set anyway, not the working set
 } NetworkModule;
@@ -62,5 +63,6 @@ int isDataReady(fd_set * sockSet, const int maxFileDescriptor );
 */
 void runServer(NetworkModule * module);
 
+void handleIncoming(int fd, NetworkModule * module);
 
 #endif
