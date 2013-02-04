@@ -11,7 +11,9 @@
 	#define MEMSHARESIZE 1024 * 512
 	#define MEMSHARENAME "Network-Graphic-MemShare.mshare"
 
-
+	//Define the network settings for connections
+	#define SERVERPORT 30001
+	#define LOCALHOST "127.0.0.1"
 
 
 
