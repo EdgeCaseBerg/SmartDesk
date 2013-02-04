@@ -3,6 +3,8 @@ C/*.out
 C/*.o
 C/obj/*.o
 C/bin
+*.o
+*.h.gch
 
 #Java ignores
 Java/*.class

@@ -70,6 +70,9 @@ int createServerSocket(NetworkModule * module){
 	struct sockaddr_in serv_addr;
 	//Internet based socket, tcp and default protocol
 	module->serverSockFD = socket(AF_INET, SOCK_STREAM, 0);
+	if(module->serverSockFD < 0){
+		return -1;
+	}
 
 	//Zero memory for struct
 	memset((char *) &serv_addr, 0, sizeof(serv_addr));
@@ -132,21 +135,28 @@ void runServer(NetworkModule * module){
 	listen(module->serverSockFD,5);
 
 	//This is where we would accept an incoming message
-	puts("Server Running");
-
+	printf("%s on %d \n", "Server Running", module->serverSockFD);
 	//This part should loop, but for testing purposes just once
 	//Accept an incoming connection
+	while(1){
+	puts("waiting");
 	int incomingFD = accept(module->serverSockFD,
 							(struct sockaddr *) &cli_addr,
 							(socklen_t*)sizeof(cli_addr));
-
+	if(incomingFD < 0){
+		perror("incomingFD");
+	}
+	puts("accepting");
 	handleIncoming(incomingFD, module);
-
+	close(incomingFD);
 	//Let's try a write to the mapped file
-	*(((int *)module->memShareAddr)) = 0xFFFFAAAA;
-	*(((int *)module->memShareAddr)+1) = 0xFFFFAAAA;
+	//*(((int *)module->memShareAddr)) = 0xFFFFAAAA;
+	//*(((int *)module->memShareAddr)+1) = 0xFFFFAAAA;
 	
 	msync(module->memShareAddr,sizeof(int),MS_SYNC|MS_INVALIDATE);
+	}
+	close(module->serverSockFD);
+	destroyNetworkModule(module);
 }
 
 
@@ -169,6 +179,7 @@ void handleIncoming(int fd, NetworkModule * module){
 	}
 
 	//Load the buffer to the shared memory
+	//There should probably be some semaphore action going on
 	int i;
 	for(i =0; i < bytesRead; i++){
 		//Write to the buffer at the current seek position
@@ -177,27 +188,5 @@ void handleIncoming(int fd, NetworkModule * module){
 	module->memSeekInt = module->memSeekInt + bytesRead;	
 
 	msync(module->memShareAddr,sizeof(int),MS_SYNC|MS_INVALIDATE);
-
-}
-
-//This is sorta my testing function...
-int test(){
-	NetworkModule nm;
-
-	//Just testing the network creating
-	if(createNetworkModule(&nm)){
-		if(createServerSocket(&nm)){
-			runServer(&nm);
-		}else{
-			puts("failed creating socket");
-		}
-	}else{
-		puts("failed creating module");
-	}
-	
-	printf("%p\n", nm.memShareAddr );
-	destroyNetworkModule(&nm);
-
-	return 0;
 
 }
