@@ -177,6 +177,8 @@ void handleIncoming(int fd, NetworkModule * module){
 	if(bytesRead < 0){
 		puts("I read no bytes");
 		return;
+	}else{
+		printf("I read %d bytes \n", bytesRead);
 	}
 
 	printf("%s\n", buffer);
@@ -192,6 +194,7 @@ void handleIncoming(int fd, NetworkModule * module){
 	int i;
 	for(i =0; i < bytesRead; i++){
 		//Write to the buffer at the current seek position
+		puts(&buffer[i]);
 		*(((int *)module->memShareAddr)+module->memSeekInt+i) = buffer[i];	
 	}
 	module->memSeekInt = module->memSeekInt + bytesRead;	
