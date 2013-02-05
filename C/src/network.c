@@ -48,19 +48,22 @@ by including network.h
 
 //Free's memory used by the NetworkModule
 void destroyNetworkModule(NetworkModule * module){
-	free(module->memShareAddr);
+	close(module->memShareAddr);
 	close(module->memShareFD);
+	close(module->serverSockFD);
+	module->memSeekInt =0;
 }
 
 //Instantiates the networkModule returns -1 on failure, 0 on success
 int createNetworkModule(NetworkModule * module){
-	module->memShareAddr = (void*)malloc(sizeof(void*));
+	//(void*)malloc(sizeof(void*));
+	//memShareAddr was originally allocated with the above
+	//but it's really not nessecary, and might cause a small memleak
+	module->memShareAddr = NULL;
 	module->memShareFD   = -1;
 	module->serverSockFD = -1;
 	module->memSeekInt = 0;
-	if(module->memShareAddr == NULL){
-		return -1;
-	}
+
 
 	return 0;
 }
@@ -112,7 +115,7 @@ int setupNetworkModule(int fd, NetworkModule * module){
 	module->memShareAddr = mmap(NULL, MEMSHARESIZE, PROT_WRITE, MAP_SHARED, fd, 0);
 	if(module->memShareAddr == MAP_FAILED){
 		puts("Failed to map memory share to network module");
-		free(module->memShareAddr);
+		munmap(module->memShareAddr,MEMSHARESIZE);
 		return -1;
 	}
 	module->memShareFD = fd;
@@ -129,20 +132,23 @@ int setupNetworkModule(int fd, NetworkModule * module){
 void runServer(NetworkModule * module){
 	//Set up client structures for incoming messages
 	struct sockaddr_in cli_addr;
-	
+	socklen_t clientLen;
+
 	//list for incoming messages. (up to 5)
 	//Note that 5 is chosen because its the max for most systems
 	listen(module->serverSockFD,5);
-
+	clientLen = sizeof(cli_addr);
 	//This is where we would accept an incoming message
 	printf("%s on %d \n", "Server Running", module->serverSockFD);
 	//This part should loop, but for testing purposes just once
 	//Accept an incoming connection
-	while(1){
+	int incomingFD=-1;
+	
 	puts("waiting");
-	int incomingFD = accept(module->serverSockFD,
+	incomingFD = accept(module->serverSockFD,
 							(struct sockaddr *) &cli_addr,
-							(socklen_t*)sizeof(cli_addr));
+							&clientLen);
+	printf("%d\n", incomingFD);
 	if(incomingFD < 0){
 		perror("incomingFD");
 	}
@@ -154,7 +160,8 @@ void runServer(NetworkModule * module){
 	//*(((int *)module->memShareAddr)+1) = 0xFFFFAAAA;
 	
 	msync(module->memShareAddr,sizeof(int),MS_SYNC|MS_INVALIDATE);
-	}
+	
+	
 	close(module->serverSockFD);
 	destroyNetworkModule(module);
 }
@@ -171,6 +178,8 @@ void handleIncoming(int fd, NetworkModule * module){
 		puts("I read no bytes");
 		return;
 	}
+
+	printf("%s\n", buffer);
 
 	//Handle the Size of our file pointer getting crazy
 	if(module->memSeekInt + bytesRead >= MEMSHARESIZE){
