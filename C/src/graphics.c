@@ -71,16 +71,13 @@ void runGraphics(GraphicModule * module){
     int h=0; 
 
     //Main graphics event loop
-    while(keyQuit != 0){
+    while(keyQuit == 0){
         drawScreen(module->screen,h++);
         while(SDL_PollEvent(&event)) {      
             switch (event.type){
                 case SDL_QUIT:
 	                keyQuit = 1;
 	                break;
-                case SDL_KEYDOWN:
-                    keyQuit = 1;
-                    break;
 			}
 		}
     }
@@ -102,12 +99,12 @@ int setupGraphicModule(int fd, GraphicModule * module){
 
 	module->memShareAddr = mmap(NULL, MEMSHARESIZE, PROT_READ, MAP_SHARED, fd, 0);
 	if(module->memShareAddr == MAP_FAILED){
+		perror("memsharegraphic");
 		puts("Failed to map memory share to network module");
 		return -1;
 	}
 	module->memShareFD = fd;
 	msync(module->memShareAddr,sizeof(int),MS_SYNC|MS_INVALIDATE);
-	close(fd);
 
 	//Set up the graphics
 	if (SDL_Init(SDL_INIT_VIDEO) < 0 ){

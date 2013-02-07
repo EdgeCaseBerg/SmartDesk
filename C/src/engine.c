@@ -71,9 +71,7 @@ void * createAndRunNetwork(void *memFD){
 		puts("Failed setting up NetworkModule");
 		return NULL;
 	}
-	//We can close the fd because mmap keeps a reference to it
-	//and mmap will clean itself when no one references it.
-	close(fd);
+
 	runServer(&nm);
 	
 	return NULL;
@@ -86,11 +84,6 @@ void * createAndRunNetwork(void *memFD){
 void * createAndRunGraphics(void *memFD){
 	int fd = *((int *) memFD);
 
-	//For now we're going to test a little in here.
-	void * map = mmap(NULL, MEMSHARESIZE, PROT_READ, MAP_SHARED, fd, 0);
-	msync(map,sizeof(int),MS_SYNC|MS_INVALIDATE);
-	close(fd);
-
 	GraphicModule gm;
 
 	if(setupGraphicModule(fd,&gm) < 0){
@@ -99,7 +92,7 @@ void * createAndRunGraphics(void *memFD){
 	}
 
 	puts("reading");
-	int test = *((int *)map+1);
+	int test = *((int *)gm.memShareAddr+1);
 	printf("%d\n",test );
 
 	puts("running graphics");
@@ -127,9 +120,11 @@ int main(int argc, char const *argv[])
 	pthread_join( nThread, NULL);
     pthread_join( gThread, NULL);
 
+    close(memS);
+
     //This is commented out while I manipulate the mapped file to get a feel.
-	if(unlink(MEMSHARENAME) < 0){
-		puts("Issue removing memory share for engine");
-	}
+	//if(unlink(MEMSHARENAME) < 0){
+	//	puts("Issue removing memory share for engine");
+	//}
 	return 0;
 }
