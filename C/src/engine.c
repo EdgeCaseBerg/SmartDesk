@@ -113,9 +113,9 @@ int main(int argc, char const *argv[])
 	pthread_join( nThread, NULL);
     pthread_join( gThread, NULL);
 
-    //This is commented out while I manipulate the mapped file to get a feel.
-	//if(unlink(MEMSHARENAME) < 0){
-	//	puts("Issue removing memory share for engine");
-	//}
+    This is commented out while I manipulate the mapped file to get a feel.
+	if(unlink(MEMSHARENAME) < 0){
+		puts("Issue removing memory share for engine");
+	}
 	return 0;
 }

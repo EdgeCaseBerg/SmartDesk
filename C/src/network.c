@@ -64,7 +64,6 @@ int createNetworkModule(NetworkModule * module){
 	module->serverSockFD = -1;
 	module->memSeekInt = 0;
 
-
 	return 0;
 }
 
@@ -144,7 +143,7 @@ void runServer(NetworkModule * module){
 	//Accept an incoming connection
 	int incomingFD=-1;
 	
-	puts("waiting");
+	//Wait... while(1){
 	incomingFD = accept(module->serverSockFD,
 							(struct sockaddr *) &cli_addr,
 							&clientLen);
@@ -152,17 +151,10 @@ void runServer(NetworkModule * module){
 	if(incomingFD < 0){
 		perror("incomingFD");
 	}
-	puts("accepting");
 	handleIncoming(incomingFD, module);
 	close(incomingFD);
-	//Let's try a write to the mapped file
-	//*(((int *)module->memShareAddr)) = 0xFFFFAAAA;
-	//*(((int *)module->memShareAddr)+1) = 0xFFFFAAAA;
-	
-	msync(module->memShareAddr,sizeof(int),MS_SYNC|MS_INVALIDATE);
 	
 	
-	close(module->serverSockFD);
 	destroyNetworkModule(module);
 }
 
@@ -194,11 +186,9 @@ void handleIncoming(int fd, NetworkModule * module){
 	int i;
 	for(i =0; i < bytesRead; i++){
 		//Write to the buffer at the current seek position
-		puts(&buffer[i]);
 		*(((int *)module->memShareAddr)+module->memSeekInt+i) = buffer[i];	
 	}
 	module->memSeekInt = module->memSeekInt + bytesRead;	
 
 	msync(module->memShareAddr,sizeof(int),MS_SYNC|MS_INVALIDATE);
-
 }
