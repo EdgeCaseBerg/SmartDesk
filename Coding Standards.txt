@@ -5,7 +5,7 @@ the function defines in a general sense, and any important information
 
 Braces should not waste verticle space:
 
-
+	//do this
 	if(somefunction()){
 		//...
 	}
@@ -29,4 +29,6 @@ explain why an include is needed, etc.... no need to comment while
 loops like: "this is a while loop bla"
 
 Header files in C should attempt to list their functions in the same order as in the .c file
-they correspond to (if applicable), this will make searching for funcitons easier
+they correspond to (if applicable), this will make searching for functions easier
+
+There will be a single main in the application. This main will reside in the engine

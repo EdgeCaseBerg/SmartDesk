@@ -25,9 +25,11 @@ made and such.
 #include <assert.h> 
 #include <pthread.h>		//For threading processes
 #include <stdio.h>
+#include <unistd.h>			//for sleep
 
 //Nonsystem Includes
 #include "network.h"
+#include "graphics.h"
 
 /*Creates the memory to be shared between the network and graphics processes
 *returns -1 on failure, file descriptor for shared file on success
@@ -69,9 +71,7 @@ void * createAndRunNetwork(void *memFD){
 		puts("Failed setting up NetworkModule");
 		return NULL;
 	}
-	//We can close the fd because mmap keeps a reference to it
-	//and mmap will clean itself when no one references it.
-	close(fd);
+
 	runServer(&nm);
 	
 	return NULL;
@@ -84,14 +84,19 @@ void * createAndRunNetwork(void *memFD){
 void * createAndRunGraphics(void *memFD){
 	int fd = *((int *) memFD);
 
-	//For now we're going to test a little in here.
-	void * map = mmap(NULL, MEMSHARESIZE, PROT_READ, MAP_SHARED, fd, 0);
-	msync(map,sizeof(int),MS_SYNC|MS_INVALIDATE);
-	close(fd);
-	
+	GraphicModule gm;
+
+	if(setupGraphicModule(fd,&gm) < 0){
+		puts("Failed setting up GraphicModule");
+		return NULL;
+	}
+
 	puts("reading");
-	int test = *((int *)map+1);
+	int test = *((int *)gm.memShareAddr+1);
 	printf("%d\n",test );
+
+	puts("running graphics");
+	runGraphics(&gm);
 
 	return NULL;
 }
@@ -107,11 +112,15 @@ int main(int argc, char const *argv[])
 	pthread_t nThread, gThread;
 
 	int nProcThreaded = pthread_create(&nThread,NULL,createAndRunNetwork,(void *)&memS);
+	//Wait a moment to allow the mmap filed to be created
+	sleep(1);
 	int gProcThreaded = pthread_create(&gThread,NULL,createAndRunGraphics,(void *)&memS);
 
 	//Join
 	pthread_join( nThread, NULL);
     pthread_join( gThread, NULL);
+
+    close(memS);
 
     //This is commented out while I manipulate the mapped file to get a feel.
 	//if(unlink(MEMSHARENAME) < 0){
