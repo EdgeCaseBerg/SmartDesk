@@ -27,11 +27,19 @@
 #include "graphics.h"
 
 //Global variables
-int mouseDown = 0;			//True/False for if the mouse is down
+int mouseDown = 0;			//True/False for if the mouse is 
+int buffered[1024];			//Buffer to hold x,y coordinates to draw
+int bufferPointerHigh = 0;	//When to stop reading from the buffered
+int bufferPointerLow  = 0;  //Where to start reading from the buffered
+
 
 
 //Returns -1 on failure, 0 on success, sets up the module
 int setupGraphicModule(int fd, GraphicModule * module){
+
+	//Zero the buffered array
+	memset(buffered,0,sizeof(buffered));
+
 	//Setup the void pointer for the mapped file
 	module->memShareAddr = (void*)malloc(sizeof(void*));
 	module->memShareFD = -1;
@@ -79,10 +87,25 @@ void setpixel(SDL_Surface *screen, int x, int y, Uint8 r, Uint8 g, Uint8 b)
     *pixmem32 = colour;
 }
 
-void drawScreen(SDL_Surface* screen, int h){ 
+void drawBuffered(SDL_Surface *screen){
+	if(SDL_MUSTLOCK(screen)) 
+    {
+        if(SDL_LockSurface(screen) < 0){
+        	return;	
+        } 
+    }
+
+    if(SDL_MUSTLOCK(screen)) SDL_UnlockSurface(screen);
+  
+    SDL_Flip(screen); 
+}
+
+void clearScreen(SDL_Surface* screen){ 
     if(SDL_MUSTLOCK(screen)) 
     {
-        if(SDL_LockSurface(screen) < 0) return;
+        if(SDL_LockSurface(screen) < 0){
+        	return;
+        }
     }
 
     int x, y, ytimesw;
@@ -94,7 +117,7 @@ void drawScreen(SDL_Surface* screen, int h){
         ytimesw = y*screen->pitch/BITSPERPIXEL;
         for( x = 0; x < screen->w; x++ ) 
         {
-            setpixel(screen, x, ytimesw, (x*x)/256+3*y+h, (y*y)/256+x+h, h);
+            setpixel(screen, x, ytimesw, 255, 255, 255);
         }
     }
 
@@ -111,7 +134,7 @@ void runGraphics(GraphicModule * module){
 
     //Main graphics event loop goes until an event causes keyquit != 0
     while(keyQuit == 0){
-        drawScreen(module->screen,h++);
+        clearScreen(module->screen);
         //Loop until there are no more events to process
 
         while(SDL_PollEvent(&event)) {    

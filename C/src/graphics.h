@@ -15,11 +15,10 @@ typedef struct{
 */
 void setpixel(SDL_Surface *screen, int x, int y, Uint8 r, Uint8 g, Uint8 b);
 
-/*Draws the screen
+/*Clears the screen to all white
 * 	screen: SDL_Surface to draw on
-*	h: A variable to remove when I'm done testing
 */
-void drawScreen(SDL_Surface* screen, int h);
+void clearScreen(SDL_Surface* screen);
 
 /*Runs the GraphicModule for the program
 *	module: GraphicModule to run
