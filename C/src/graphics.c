@@ -27,6 +27,42 @@
 #include "graphics.h"
 
 
+//Returns -1 on failure, 0 on success, sets up the module
+int setupGraphicModule(int fd, GraphicModule * module){
+	//Setup the void pointer for the mapped file
+	module->memShareAddr = (void*)malloc(sizeof(void*));
+	module->memShareFD = -1;
+	if(module->memShareAddr == NULL){
+		puts("Failed allocating memory for Graphics Module");
+		return -1;
+	}
+
+	module->memShareAddr = mmap(NULL, MEMSHARESIZE, PROT_READ, MAP_SHARED, fd, 0);
+	if(module->memShareAddr == MAP_FAILED){
+		perror("memsharegraphic");
+		puts("Failed to map memory share to network module");
+		return -1;
+	}
+	module->memShareFD = fd;
+	msync(module->memShareAddr,sizeof(int),MS_SYNC|MS_INVALIDATE);
+
+	//Set up the graphics
+	if (SDL_Init(SDL_INIT_VIDEO) < 0 ){
+		puts("Failed to initalize video");
+		return -1;
+	}
+
+	module->screen = SDL_SetVideoMode(SCREENWIDTH, SCREENHEIGHT, SCREENDEPTH, SDL_HWSURFACE);
+	if(module->screen == NULL){
+		puts("Failed to set video mode");
+		SDL_Quit();
+		return -1;
+	}
+   
+
+	return 0;
+}
+
 void setpixel(SDL_Surface *screen, int x, int y, Uint8 r, Uint8 g, Uint8 b)
 {
     Uint32 *pixmem32;
@@ -70,15 +106,13 @@ void runGraphics(GraphicModule * module){
     int keyQuit = 0;
     int h=0; 
 
-    //Main graphics event loop
+    //Main graphics event loop goes until an event causes keyquit != 0
     while(keyQuit == 0){
         drawScreen(module->screen,h++);
-        while(SDL_PollEvent(&event)) {      
-            switch (event.type){
-                case SDL_QUIT:
-	                keyQuit = 1;
-	                break;
-			}
+        //Loop until there are no more events to process
+
+        while(SDL_PollEvent(&event)) {    
+        	handleGraphicEvent(event, module,&keyQuit);  
 		}
     }
 
@@ -87,38 +121,23 @@ void runGraphics(GraphicModule * module){
 
 }
 
-//Returns -1 on failure, 0 on success, sets up the module
-int setupGraphicModule(int fd, GraphicModule * module){
-	//Setup the void pointer for the mapped file
-	module->memShareAddr = (void*)malloc(sizeof(void*));
-	module->memShareFD = -1;
-	if(module->memShareAddr == NULL){
-		puts("Failed allocating memory for Graphics Module");
-		return -1;
+void handleGraphicEvent(SDL_Event  event, GraphicModule * module, int * stopFlag){
+	//Giant Case to handle all events
+	switch (event.type){
+        case SDL_QUIT:
+	       	//Halt the execution of the graphics
+	       	*stopFlag = 1;
+	       	break;
+	    case SDL_KEYDOWN:
+	    	handleKeyEvent(event,stopFlag);
+	    	break;
 	}
+}
 
-	module->memShareAddr = mmap(NULL, MEMSHARESIZE, PROT_READ, MAP_SHARED, fd, 0);
-	if(module->memShareAddr == MAP_FAILED){
-		perror("memsharegraphic");
-		puts("Failed to map memory share to network module");
-		return -1;
+void handleKeyEvent(SDL_Event  event, int *stopFlag){
+	switch( event.key.keysym.sym ){
+		case SDLK_ESCAPE:
+	    	*stopFlag = 1;
+	    	break;
 	}
-	module->memShareFD = fd;
-	msync(module->memShareAddr,sizeof(int),MS_SYNC|MS_INVALIDATE);
-
-	//Set up the graphics
-	if (SDL_Init(SDL_INIT_VIDEO) < 0 ){
-		puts("Failed to initalize video");
-		return -1;
-	}
-
-	module->screen = SDL_SetVideoMode(SCREENWIDTH, SCREENHEIGHT, SCREENDEPTH, SDL_HWSURFACE);
-	if(module->screen == NULL){
-		puts("Failed to set video mode");
-		SDL_Quit();
-		return -1;
-	}
-   
-
-	return 0;
 }

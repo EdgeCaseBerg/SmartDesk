@@ -26,6 +26,11 @@ void drawScreen(SDL_Surface* screen, int h);
 */
 void runGraphics(GraphicModule * module);
 
+/*Handles all graphics events. Welcome to the bottleneck boys
+*	eventType: An SDL event type
+*	module: GraphicModule currently in use
+*/
+void handleGraphicEvent(SDL_Event event, GraphicModule * module, int * stopFlag);
 
 /*
 *Set's up the graphics module
@@ -34,5 +39,7 @@ void runGraphics(GraphicModule * module);
 *	returns -1 on failure to set up the graphics module, 0 on success
 */
 int setupGraphicModule(int fd, GraphicModule * module);
+
+void handleKeyEvent(SDL_Event  event, int *stopFlag);
 
 #endif
