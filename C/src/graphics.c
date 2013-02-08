@@ -179,7 +179,11 @@ void runGraphics(GraphicModule * module){
         while(SDL_PollEvent(&event)) {    
         	handleGraphicEvent(event, module,&keyQuit);  
 		}
-        smoothPath();
+        //Since smoothing is a preprocessor, if it's set to !1 then this call
+        //should be optimized out by the compiler
+        if(SMOOTHING==1){
+            smoothPath();
+        }
         drawBuffered(module->screen);
     }
 
@@ -200,6 +204,7 @@ void handleGraphicEvent(SDL_Event  event, GraphicModule * module, int * stopFlag
 	    	break;
 	    case SDL_MOUSEBUTTONDOWN:
 	    	mouseDown = 1;
+            handleMouseEvent(event);
 	    	break;
 	    case SDL_MOUSEBUTTONUP:
 	    	mouseDown = 0;
