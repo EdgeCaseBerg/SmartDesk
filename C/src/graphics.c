@@ -98,11 +98,9 @@ void drawBuffered(SDL_Surface *screen){
     //printf("%d,",bufferPointer );
     for(; i < bufferPointer && i < CLICKBUFFERSIZE; i=i+2){
     	//Each odd number is an x, each even is a y
-        printf("drawing,");
     	setpixel(screen, buffered[i],buffered[i+1]*screen->pitch/BITSPERPIXEL,0,0,0);
     }
     //Done drawing reset:
-    puts("setting bufferPointer to 0");
     bufferPointer=0;
 
     if(SDL_MUSTLOCK(screen)) SDL_UnlockSurface(screen);
@@ -197,6 +195,5 @@ void handleMouseEvent(SDL_Event event){
         if(bufferPointer > CLICKBUFFERSIZE){
             puts("aw shit ");//what a good error message for now
         }
-        printf("%d\n", bufferPointer);
     }
 }
