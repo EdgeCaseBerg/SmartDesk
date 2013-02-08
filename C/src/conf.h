@@ -21,6 +21,8 @@
 	#define SCREENDEPTH 32
 	#define BITSPERPIXEL 4
 	#define CLICKBUFFERSIZE 50 //it hardly ever use's 2, 50 is plenty
+	#define SMOOTHING 1
+	#define SMOOTHINGSTEPS 3
 
 
 

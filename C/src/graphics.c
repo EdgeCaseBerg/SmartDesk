@@ -21,6 +21,7 @@
 #include <sys/mman.h>		//memory mapped files
 #include <stdlib.h>			//malloc and free
 #include <stdio.h>			//puts
+#include <math.h>           //sqrt (compile with -lm flag)
 
 //Local includes
 #include "conf.h"
@@ -28,6 +29,7 @@
 
 //Global variables
 int mouseDown = 0;			           //True/False for if the mouse is 
+int brushSize = 5;                     //Size of the brush
 int static buffered[CLICKBUFFERSIZE];  //Buffer to hold x,y coordinates to draw
 int static bufferPointer = 0;          //When to stop reading from the buffered
 
@@ -69,8 +71,33 @@ int setupGraphicModule(int fd, GraphicModule * module){
 		return -1;
 	}
    
-
 	return 0;
+}
+
+void smoothPath(){
+    int i,x,y,nx,ny,j;
+    int xStep,yStep;
+    int distance = 0;
+    int tempPointer = bufferPointer;
+    for(i=0; i < tempPointer -4; i=i+2){
+        puts("i got in");
+        x=buffered[i];
+        y=buffered[i+1];
+        nx=buffered[i+2];
+        ny=buffered[i+3];
+        //Figure out the distance between this one and the next point
+        distance = sqrt((x-nx )*(x-nx)+(y-ny)*(y-ny));
+        //To figure out the 'steps', divide  distance by the coordinate length
+        xStep = (x-nx)/distance;
+        yStep = (y-ny)/distance;
+        printf("%d,%d\n", xStep,yStep);
+        //Now add in steps of that distance to the buffer
+        for(; j < SMOOTHINGSTEPS; j++){
+            buffered[bufferPointer] = x+xStep;
+            buffered[bufferPointer+1] = y+yStep;
+            bufferPointer = bufferPointer+2;
+        }
+    }
 }
 
 void setpixel(SDL_Surface *screen, int x, int y, Uint8 r, Uint8 g, Uint8 b)
@@ -95,10 +122,15 @@ void drawBuffered(SDL_Surface *screen){
     }
 
     int i = 0;
+    int x,y=0;
     //printf("%d,",bufferPointer );
     for(; i < bufferPointer && i < CLICKBUFFERSIZE; i=i+2){
     	//Each odd number is an x, each even is a y
-    	setpixel(screen, buffered[i],buffered[i+1]*screen->pitch/BITSPERPIXEL,0,0,0);
+        for(x=0; x < brushSize; x++ ){
+            for(y=0; y < brushSize; y++){
+                setpixel(screen, buffered[i]+x,(buffered[i+1]+y)*screen->pitch/BITSPERPIXEL,0,0,0);        
+            }
+        }
     }
     //Done drawing reset:
     bufferPointer=0;
@@ -144,11 +176,10 @@ void runGraphics(GraphicModule * module){
     while(keyQuit == 0){
         
         //Loop until there are no more events to process
-
         while(SDL_PollEvent(&event)) {    
         	handleGraphicEvent(event, module,&keyQuit);  
 		}
-
+        smoothPath();
         drawBuffered(module->screen);
     }
 
