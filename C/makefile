@@ -12,9 +12,7 @@ bin/network.o: src/conf.h src/network.h src/network.c
 	$(CC) -c src/network.c -o bin/network.o
 
 bin/graphics.o: src/graphics.c src/graphics.h src/conf.h
-	$(CC) -c src/graphics.c `sdl-config --cflags` -o bin/graphics.o 
-
-
+	$(CC) -c src/graphics.c `sdl-config --cflags` -lm -o bin/graphics.o 
 
 clean:
 	rm -rf ./bin/*

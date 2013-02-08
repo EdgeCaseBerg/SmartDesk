@@ -15,17 +15,21 @@ typedef struct{
 */
 void setpixel(SDL_Surface *screen, int x, int y, Uint8 r, Uint8 g, Uint8 b);
 
-/*Draws the screen
+/*Clears the screen to all white
 * 	screen: SDL_Surface to draw on
-*	h: A variable to remove when I'm done testing
 */
-void drawScreen(SDL_Surface* screen, int h);
+void clearScreen(SDL_Surface* screen);
 
 /*Runs the GraphicModule for the program
 *	module: GraphicModule to run
 */
 void runGraphics(GraphicModule * module);
 
+/*Handles all graphics events. Welcome to the bottleneck boys
+*	eventType: An SDL event type
+*	module: GraphicModule currently in use
+*/
+void handleGraphicEvent(SDL_Event event, GraphicModule * module, int * stopFlag);
 
 /*
 *Set's up the graphics module
@@ -34,5 +38,17 @@ void runGraphics(GraphicModule * module);
 *	returns -1 on failure to set up the graphics module, 0 on success
 */
 int setupGraphicModule(int fd, GraphicModule * module);
+
+/*Handles all key presses
+*	event: The SDL_Event to handle
+*	stopFlag: Sentinal value to stop the graphics
+*/
+void handleKeyEvent(SDL_Event  event, int *stopFlag);
+
+/*
+*Handles all Mouse events
+*	event: The SDL_Event to handle
+*/
+void handleMouseEvent(SDL_Event event);
 
 #endif
