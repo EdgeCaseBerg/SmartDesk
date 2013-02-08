@@ -26,6 +26,9 @@
 #include "conf.h"
 #include "graphics.h"
 
+//Global variables
+int mouseDown = 0;			//True/False for if the mouse is down
+
 
 //Returns -1 on failure, 0 on success, sets up the module
 int setupGraphicModule(int fd, GraphicModule * module){
@@ -131,6 +134,15 @@ void handleGraphicEvent(SDL_Event  event, GraphicModule * module, int * stopFlag
 	    case SDL_KEYDOWN:
 	    	handleKeyEvent(event,stopFlag);
 	    	break;
+	    case SDL_MOUSEBUTTONDOWN:
+	    	mouseDown = 1;
+	    	break;
+	    case SDL_MOUSEBUTTONUP:
+	    	mouseDown = 0;
+	    	break;
+	    case SDL_MOUSEMOTION:
+	    	handleMouseEvent(event);
+	    	break;
 	}
 }
 
@@ -140,4 +152,8 @@ void handleKeyEvent(SDL_Event  event, int *stopFlag){
 	    	*stopFlag = 1;
 	    	break;
 	}
+}
+
+void handleMouseEvent(SDL_Event event){
+
 }

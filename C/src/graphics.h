@@ -40,6 +40,16 @@ void handleGraphicEvent(SDL_Event event, GraphicModule * module, int * stopFlag)
 */
 int setupGraphicModule(int fd, GraphicModule * module);
 
+/*Handles all key presses
+*	event: The SDL_Event to handle
+*	stopFlag: Sentinal value to stop the graphics
+*/
 void handleKeyEvent(SDL_Event  event, int *stopFlag);
+
+/*
+*Handles all Mouse events
+*	event: The SDL_Event to handle
+*/
+void handleMouseEvent(SDL_Event event);
 
 #endif
