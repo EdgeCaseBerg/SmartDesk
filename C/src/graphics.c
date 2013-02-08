@@ -26,69 +26,19 @@
 #include "conf.h"
 #include "graphics.h"
 
+//Global variables
+int mouseDown = 0;			           //True/False for if the mouse is 
+int static buffered[CLICKBUFFERSIZE];  //Buffer to hold x,y coordinates to draw
+int static bufferPointer = 0;          //When to stop reading from the buffered
 
-void setpixel(SDL_Surface *screen, int x, int y, Uint8 r, Uint8 g, Uint8 b)
-{
-    Uint32 *pixmem32;
-    Uint32 colour;  
 
-	//Convert RGB to a color with the proper screen format 
-    colour = SDL_MapRGB( screen->format, r, g, b );
-  
-  	//Set the pixels for 32 bit depth (if want different depth will have to mess)
-    pixmem32 = (Uint32*) screen->pixels  + y + x;
-    *pixmem32 = colour;
-}
-
-void drawScreen(SDL_Surface* screen, int h){ 
-    if(SDL_MUSTLOCK(screen)) 
-    {
-        if(SDL_LockSurface(screen) < 0) return;
-    }
-
-    int x, y, ytimesw;
-  
-
-    for(y = 0; y < screen->h; y++ ) 
-    {
-    	//pitch is the scanline
-        ytimesw = y*screen->pitch/BITSPERPIXEL;
-        for( x = 0; x < screen->w; x++ ) 
-        {
-            setpixel(screen, x, ytimesw, (x*x)/256+3*y+h, (y*y)/256+x+h, h);
-        }
-    }
-
-    if(SDL_MUSTLOCK(screen)) SDL_UnlockSurface(screen);
-  
-    SDL_Flip(screen); 
-}
-
-void runGraphics(GraphicModule * module){
-    SDL_Event event;
-  
-    int keyQuit = 0;
-    int h=0; 
-
-    //Main graphics event loop
-    while(keyQuit == 0){
-        drawScreen(module->screen,h++);
-        while(SDL_PollEvent(&event)) {      
-            switch (event.type){
-                case SDL_QUIT:
-	                keyQuit = 1;
-	                break;
-			}
-		}
-    }
-
-    SDL_Quit();
-  
-
-}
 
 //Returns -1 on failure, 0 on success, sets up the module
 int setupGraphicModule(int fd, GraphicModule * module){
+
+	//Zero the buffered array
+	memset(buffered,0,sizeof(buffered));
+
 	//Setup the void pointer for the mapped file
 	module->memShareAddr = (void*)malloc(sizeof(void*));
 	module->memShareFD = -1;
@@ -121,4 +71,129 @@ int setupGraphicModule(int fd, GraphicModule * module){
    
 
 	return 0;
+}
+
+void setpixel(SDL_Surface *screen, int x, int y, Uint8 r, Uint8 g, Uint8 b)
+{
+    Uint32 *pixmem32;
+    Uint32 colour;  
+
+	//Convert RGB to a color with the proper screen format 
+    colour = SDL_MapRGB( screen->format, r, g, b );
+  
+  	//Set the pixels for 32 bit depth (if want different depth will have to mess)
+    pixmem32 = (Uint32*) screen->pixels  + y + x;
+    *pixmem32 = colour;
+}
+
+void drawBuffered(SDL_Surface *screen){
+	if(SDL_MUSTLOCK(screen)) 
+    {
+        if(SDL_LockSurface(screen) < 0){
+        	return;	
+        } 
+    }
+
+    int i = 0;
+    //printf("%d,",bufferPointer );
+    for(; i < bufferPointer && i < CLICKBUFFERSIZE; i=i+2){
+    	//Each odd number is an x, each even is a y
+    	setpixel(screen, buffered[i],buffered[i+1]*screen->pitch/BITSPERPIXEL,0,0,0);
+    }
+    //Done drawing reset:
+    bufferPointer=0;
+
+    if(SDL_MUSTLOCK(screen)) SDL_UnlockSurface(screen);
+  
+    SDL_Flip(screen); 
+}
+
+void clearScreen(SDL_Surface* screen){ 
+    if(SDL_MUSTLOCK(screen)) 
+    {
+        if(SDL_LockSurface(screen) < 0){
+        	return;
+        }
+    }
+
+    int x, y, ytimesw;
+  
+
+    for(y = 0; y < screen->h; y++ ) 
+    {
+    	//pitch is the scanline
+        ytimesw = y*screen->pitch/BITSPERPIXEL;
+        for( x = 0; x < screen->w; x++ ) 
+        {
+            setpixel(screen, x, ytimesw, 255, 255, 255);
+        }
+    }
+
+    if(SDL_MUSTLOCK(screen)) SDL_UnlockSurface(screen);
+  
+    SDL_Flip(screen); 
+}
+
+void runGraphics(GraphicModule * module){
+    SDL_Event event;
+  
+    int keyQuit = 0;
+    
+    clearScreen(module->screen);
+    //Main graphics event loop goes until an event causes keyquit != 0
+    while(keyQuit == 0){
+        
+        //Loop until there are no more events to process
+
+        while(SDL_PollEvent(&event)) {    
+        	handleGraphicEvent(event, module,&keyQuit);  
+		}
+
+        drawBuffered(module->screen);
+    }
+
+    SDL_Quit();
+  
+
+}
+
+void handleGraphicEvent(SDL_Event  event, GraphicModule * module, int * stopFlag){
+	//Giant Case to handle all events
+	switch (event.type){
+        case SDL_QUIT:
+	       	//Halt the execution of the graphics
+	       	*stopFlag = 1;
+	       	break;
+	    case SDL_KEYDOWN:
+	    	handleKeyEvent(event,stopFlag);
+	    	break;
+	    case SDL_MOUSEBUTTONDOWN:
+	    	mouseDown = 1;
+	    	break;
+	    case SDL_MOUSEBUTTONUP:
+	    	mouseDown = 0;
+	    	break;
+	    case SDL_MOUSEMOTION:
+	    	handleMouseEvent(event);
+	    	break;
+	}
+}
+
+void handleKeyEvent(SDL_Event  event, int *stopFlag){
+	switch( event.key.keysym.sym ){
+		case SDLK_ESCAPE:
+	    	*stopFlag = 1;
+	    	break;
+	}
+}
+
+void handleMouseEvent(SDL_Event event){
+    if(mouseDown){
+        buffered[bufferPointer] = event.motion.x;
+        buffered[bufferPointer+1] = event.motion.y;
+        bufferPointer = bufferPointer+2;
+        if(bufferPointer > CLICKBUFFERSIZE){
+            puts("aw shit ");//what a good error message for now
+        }
+    }
 }
