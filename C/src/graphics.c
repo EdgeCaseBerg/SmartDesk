@@ -28,7 +28,7 @@
 
 //Global variables
 int mouseDown = 0;			//True/False for if the mouse is 
-int buffered[1024];			//Buffer to hold x,y coordinates to draw
+int buffered[CLICKBUFFERSIZE];			//Buffer to hold x,y coordinates to draw
 int bufferPointerHigh = 0;	//When to stop reading from the buffered
 int bufferPointerLow  = 0;  //Where to start reading from the buffered
 
@@ -95,6 +95,12 @@ void drawBuffered(SDL_Surface *screen){
         } 
     }
 
+    int stop = 0;
+    for(; !stop; bufferPointerLow+2 % CLICKBUFFERSIZE){
+    	//Each odd number is an x, each even is a y
+    	setpixel(screen, buffered[bufferPointerLow],buffered[bufferPointerLow+1],0,0,0);
+    }
+
     if(SDL_MUSTLOCK(screen)) SDL_UnlockSurface(screen);
   
     SDL_Flip(screen); 
@@ -134,7 +140,7 @@ void runGraphics(GraphicModule * module){
 
     //Main graphics event loop goes until an event causes keyquit != 0
     while(keyQuit == 0){
-        clearScreen(module->screen);
+        clearScreen(module->scre);
         //Loop until there are no more events to process
 
         while(SDL_PollEvent(&event)) {    

@@ -20,6 +20,7 @@
 	#define SCREENHEIGHT 480
 	#define SCREENDEPTH 32
 	#define BITSPERPIXEL 4
+	#define CLICKBUFFERSIZE 1024
 
 
 
