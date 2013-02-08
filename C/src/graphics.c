@@ -27,10 +27,9 @@
 #include "graphics.h"
 
 //Global variables
-int mouseDown = 0;			//True/False for if the mouse is 
-int buffered[CLICKBUFFERSIZE];			//Buffer to hold x,y coordinates to draw
-int bufferPointerHigh = 0;	//When to stop reading from the buffered
-int bufferPointerLow  = 0;  //Where to start reading from the buffered
+int mouseDown = 0;			           //True/False for if the mouse is 
+int static buffered[CLICKBUFFERSIZE];  //Buffer to hold x,y coordinates to draw
+int static bufferPointer = 0;          //When to stop reading from the buffered
 
 
 
@@ -95,11 +94,16 @@ void drawBuffered(SDL_Surface *screen){
         } 
     }
 
-    int stop = 0;
-    for(; !stop; bufferPointerLow+2 % CLICKBUFFERSIZE){
+    int i = 0;
+    //printf("%d,",bufferPointer );
+    for(; i < bufferPointer && i < CLICKBUFFERSIZE; i=i+2){
     	//Each odd number is an x, each even is a y
-    	setpixel(screen, buffered[bufferPointerLow],buffered[bufferPointerLow+1],0,0,0);
+        printf("drawing,");
+    	setpixel(screen, buffered[i],buffered[i+1]*screen->pitch/BITSPERPIXEL,0,0,0);
     }
+    //Done drawing reset:
+    puts("setting bufferPointer to 0");
+    bufferPointer=0;
 
     if(SDL_MUSTLOCK(screen)) SDL_UnlockSurface(screen);
   
@@ -136,16 +140,18 @@ void runGraphics(GraphicModule * module){
     SDL_Event event;
   
     int keyQuit = 0;
-    int h=0; 
-
+    
+    clearScreen(module->screen);
     //Main graphics event loop goes until an event causes keyquit != 0
     while(keyQuit == 0){
-        clearScreen(module->scre);
+        
         //Loop until there are no more events to process
 
         while(SDL_PollEvent(&event)) {    
         	handleGraphicEvent(event, module,&keyQuit);  
 		}
+
+        drawBuffered(module->screen);
     }
 
     SDL_Quit();
@@ -184,5 +190,13 @@ void handleKeyEvent(SDL_Event  event, int *stopFlag){
 }
 
 void handleMouseEvent(SDL_Event event){
-
+    if(mouseDown){
+        buffered[bufferPointer] = event.motion.x;
+        buffered[bufferPointer+1] = event.motion.y;
+        bufferPointer = bufferPointer+2;
+        if(bufferPointer > CLICKBUFFERSIZE){
+            puts("aw shit ");//what a good error message for now
+        }
+        printf("%d\n", bufferPointer);
+    }
 }
