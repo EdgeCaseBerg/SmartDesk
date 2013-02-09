@@ -78,6 +78,8 @@ int setupGraphicModule(int fd, GraphicModule * module){
         return -1;
     }
 
+    SDL_WM_SetCaption( "Smart Desk | Interactive Learning Software", NULL );
+
 	return 0;
 }
 
@@ -158,7 +160,7 @@ void drawUI(GraphicModule * module){
     //Draw the bitmap for the outline of the ui
 
     //Draw the buttons
-    drawShadedButton(module->exitButton,module->screen);
+    drawShadedButton(module->buttons[EXITBUTTONINDEX],module->screen);
 
     if(SDL_MUSTLOCK(module->screen)) SDL_UnlockSurface(module->screen);
   
@@ -198,12 +200,8 @@ void runGraphics(GraphicModule * module){
     
     clearScreen(module->screen);
     
-    //Draw the UI
-    drawUI(module);
-
     //Main graphics event loop goes until an event causes keyquit != 0
     while(keyQuit == 0){
-        
         //Loop until there are no more events to process
         while(SDL_PollEvent(&event)) {    
         	handleGraphicEvent(event, module,&keyQuit);  
@@ -211,6 +209,7 @@ void runGraphics(GraphicModule * module){
         //Since smoothing is a preprocessor, if it's set to !1 then this call
         //should be optimized out by the compiler
         drawBuffered(module->screen);
+        drawUI(module);   
     }
 
     SDL_Quit();
@@ -229,9 +228,8 @@ int loadUI(GraphicModule * module){
     //Load the bitmap font and make the proper sprites and such
 
     //Create and draw the buttons
-    module->exitButton = malloc(sizeof(ShadedButton));
-        printf("%p\n", module->exitButton);
-    if(setupShadedButton(50, 50, 200, 200, 0, 140, 60, "poop",module->exitButton) < 0){
+    module->buttons[EXITBUTTONINDEX] = malloc(sizeof(ShadedButton));
+    if(setupShadedButton(5, 5, 200, 200, 255, 0, 60, "poop",module->buttons[EXITBUTTONINDEX]) < 0){
         puts("Failed creating exit button");
         return -1;
     }

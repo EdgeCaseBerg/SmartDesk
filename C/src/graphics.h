@@ -11,7 +11,7 @@ typedef struct{
 	void * memShareAddr;
 	int memShareFD;
 	SDL_Surface *screen;
-	ShadedButton * exitButton;
+	ShadedButton *buttons[NUMBEROFBUTTONS];
 } GraphicModule;
 
 /*Set's a pixel on the screen at the x,y coordinates to the r g b value.
