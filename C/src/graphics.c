@@ -26,6 +26,7 @@
 //Local includes
 #include "conf.h"
 #include "graphics.h"
+#include "button.h"
 
 //Global variables
 int mouseDown = 0;			           //True/False for if the mouse is 
@@ -70,6 +71,13 @@ int setupGraphicModule(int fd, GraphicModule * module){
 		return -1;
 	}
    
+
+    if(loadUI(module) < 0){
+        puts("Failed to load User Interface");
+        SDL_Quit();
+        return -1;
+    }
+
 	return 0;
 }
 
@@ -139,6 +147,24 @@ void drawBuffered(SDL_Surface *screen){
     SDL_Flip(screen); 
 }
 
+void drawUI(GraphicModule * module){
+    if(SDL_MUSTLOCK(module->screen)) 
+    {
+        if(SDL_LockSurface(module->screen) < 0){
+            return;
+        }
+    }
+
+    //Draw the bitmap for the outline of the ui
+
+    //Draw the buttons
+    drawShadedButton(module->exitButton,module->screen);
+
+    if(SDL_MUSTLOCK(module->screen)) SDL_UnlockSurface(module->screen);
+  
+    SDL_Flip(module->screen); 
+}
+
 void clearScreen(SDL_Surface* screen){ 
     if(SDL_MUSTLOCK(screen)) 
     {
@@ -171,6 +197,10 @@ void runGraphics(GraphicModule * module){
     int keyQuit = 0;
     
     clearScreen(module->screen);
+    
+    //Draw the UI
+    drawUI(module);
+
     //Main graphics event loop goes until an event causes keyquit != 0
     while(keyQuit == 0){
         
@@ -185,6 +215,28 @@ void runGraphics(GraphicModule * module){
 
     SDL_Quit();
   
+
+}
+
+//-1 for fail 0 for good
+int loadUI(GraphicModule * module){
+    //Load the user interface (there will be a skin that sits on top of everything)
+    //then the buttons that we actually need to have interactions with will be drawn on top
+    //And all the other stuff will be loaded and crap.
+
+    //Load the bmp for the UI
+
+    //Load the bitmap font and make the proper sprites and such
+
+    //Create and draw the buttons
+    module->exitButton = malloc(sizeof(ShadedButton));
+        printf("%p\n", module->exitButton);
+    if(setupShadedButton(50, 50, 200, 200, 0, 140, 60, "poop",module->exitButton) < 0){
+        puts("Failed creating exit button");
+        return -1;
+    }
+
+    return 0;
 
 }
 

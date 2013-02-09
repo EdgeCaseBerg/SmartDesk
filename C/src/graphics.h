@@ -5,10 +5,13 @@
 #include <SDL.h>
 #include <SDL/SDL.h>
 
+#include "button.h"
+
 typedef struct{
 	void * memShareAddr;
 	int memShareFD;
 	SDL_Surface *screen;
+	ShadedButton * exitButton;
 } GraphicModule;
 
 /*Set's a pixel on the screen at the x,y coordinates to the r g b value.
@@ -45,19 +48,23 @@ int setupGraphicModule(int fd, GraphicModule * module);
 */
 void handleKeyEvent(SDL_Event  event, int *stopFlag, GraphicModule * module);
 
-/*
-*Handles all Mouse events
+/*Handles all Mouse events
 *	event: The SDL_Event to handle
 */
 void handleMouseEvent(SDL_Event event);
 
-/*
-*Takes the current mouse coordinates and there relative position and smooths a line between
+/*Takes the current mouse coordinates and there relative position and smooths a line between
 *	x: X coordinate of current mouse position
 *	y: Y coordinate of current mouse position
 *	xrel: x's relative change since the last mouse event
 *	yrel: y's relative change since the last mouse event
 */
 void smoothPath(Uint16 x, Uint16 y, Sint16 xrel, Sint16 yrel);
+
+/*Loads the User Interface to the graphics module
+*	module: The GraphicModule to load a UserInterface to
+*	returns -1 on failing to load the user interface, 0 on successs
+*/
+int loadUI(GraphicModule * module);
 
 #endif

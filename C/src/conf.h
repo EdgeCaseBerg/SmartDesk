@@ -23,6 +23,8 @@
 	#define CLICKBUFFERSIZE 500 
 	#define SMOOTHING 1
 
+	
+
 
 
 #endif
