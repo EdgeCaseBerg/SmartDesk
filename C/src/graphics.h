@@ -51,6 +51,13 @@ void handleKeyEvent(SDL_Event  event, int *stopFlag, GraphicModule * module);
 */
 void handleMouseEvent(SDL_Event event);
 
+/*
+*Takes the current mouse coordinates and there relative position and smooths a line between
+*	x: X coordinate of current mouse position
+*	y: Y coordinate of current mouse position
+*	xrel: x's relative change since the last mouse event
+*	yrel: y's relative change since the last mouse event
+*/
 void smoothPath(Uint16 x, Uint16 y, Sint16 xrel, Sint16 yrel);
 
 #endif

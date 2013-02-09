@@ -118,11 +118,16 @@ void drawBuffered(SDL_Surface *screen){
 
     int i = 0;
     int x,y=0;
+    int drawnY,drawnX;
+    int ylimit = SCREENHEIGHT*screen->pitch/BITSPERPIXEL; //ylimit is307200
     for(; i < bufferPointer && i < CLICKBUFFERSIZE; i=i+2){
     	//Each odd number is an x, each even is a y
         for(x=0; x < brushSize; x++ ){
             for(y=0; y < brushSize; y++){
-                setpixel(screen, buffered[i]+x,(buffered[i+1]+y)*screen->pitch/BITSPERPIXEL,0,0,0);        
+                drawnY=(buffered[i+1]+y)*screen->pitch/BITSPERPIXEL;
+                drawnX=buffered[i]+x;
+                if(drawnY < ylimit && drawnX < SCREENWIDTH)
+                    setpixel(screen, drawnX,drawnY,0,0,0);        
             }
         }
     }
@@ -223,13 +228,15 @@ void handleKeyEvent(SDL_Event  event, int *stopFlag, GraphicModule * module){
 
 void handleMouseEvent(SDL_Event event){
     if(mouseDown){
-        buffered[bufferPointer] = event.motion.x;
-        buffered[bufferPointer+1] = event.motion.y;
-        //If smoothing is off this will be optimized out by the compiler
-        if(SMOOTHING==1){
-            smoothPath(event.motion.x,event.motion.y,event.motion.xrel,event.motion.yrel);
-        }
-        bufferPointer = bufferPointer+2;
+        if(event.motion.x < SCREENWIDTH && event.motion.y < SCREENHEIGHT){
+            buffered[bufferPointer] = event.motion.x;
+            buffered[bufferPointer+1] = event.motion.y;
+            //If smoothing is off this will be optimized out by the compiler
+            if(SMOOTHING==1){
+                smoothPath(event.motion.x,event.motion.y,event.motion.xrel,event.motion.yrel);
+            }
+            bufferPointer = bufferPointer+2;
+        }    
         if(bufferPointer > CLICKBUFFERSIZE){
             puts("aw shit ");//what a good error message for now
             bufferPointer = 0;
