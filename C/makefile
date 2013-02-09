@@ -16,3 +16,16 @@ bin/graphics.o: src/graphics.c src/graphics.h src/conf.h
 
 clean:
 	rm -rf ./bin/*
+
+
+bin/debug: bin/engined.o bin/networkd.o bin/graphicsd.o
+	$(CC) -o bin/debug bin/networkd.o bin/engined.o bin/graphicsd.o `sdl-config --libs` -lpthread -g
+
+bin/engined.o: src/engine.c src/engine.h src/conf.h
+	$(CC) -c src/engine.c -g -o bin/engined.o `sdl-config --cflags`
+
+bin/networkd.o: src/conf.h src/network.h src/network.c
+	$(CC) -c src/network.c -g -o bin/networkd.o
+
+bin/graphicsd.o: src/graphics.c src/graphics.h src/conf.h
+	$(CC) -c src/graphics.c -g `sdl-config --cflags` -lm -o bin/graphicsd.o 
