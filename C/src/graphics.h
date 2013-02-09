@@ -43,12 +43,21 @@ int setupGraphicModule(int fd, GraphicModule * module);
 *	event: The SDL_Event to handle
 *	stopFlag: Sentinal value to stop the graphics
 */
-void handleKeyEvent(SDL_Event  event, int *stopFlag);
+void handleKeyEvent(SDL_Event  event, int *stopFlag, GraphicModule * module);
 
 /*
 *Handles all Mouse events
 *	event: The SDL_Event to handle
 */
 void handleMouseEvent(SDL_Event event);
+
+/*
+*Takes the current mouse coordinates and there relative position and smooths a line between
+*	x: X coordinate of current mouse position
+*	y: Y coordinate of current mouse position
+*	xrel: x's relative change since the last mouse event
+*	yrel: y's relative change since the last mouse event
+*/
+void smoothPath(Uint16 x, Uint16 y, Sint16 xrel, Sint16 yrel);
 
 #endif
