@@ -29,7 +29,7 @@
 
 //Global variables
 int mouseDown = 0;			           //True/False for if the mouse is 
-int brushSize = 6;                     //Size of the brush
+int brushSize = 3;                     //Size of the brush
 int static buffered[CLICKBUFFERSIZE];  //Buffer to hold x,y coordinates to draw
 int static bufferPointer = 0;          //When to stop reading from the buffered
 
@@ -75,7 +75,6 @@ int setupGraphicModule(int fd, GraphicModule * module){
 
 void smoothPath(Uint16 x, Uint16 y, Sint16 xrel, Sint16 yrel){
     //The relative x,y tell us how far away from the previous x,y we were.
-    printf("%d %d, %d %d\n", x,y,xrel,yrel);
     //x-xrel gives us the previous coordinate
     //We can use this to define a path between the points and fill in holes
     float dist = sqrt((x-(x-xrel))*(x-(x-xrel)) + (y-(y-yrel))*(y-(y-yrel)));
@@ -85,18 +84,12 @@ void smoothPath(Uint16 x, Uint16 y, Sint16 xrel, Sint16 yrel){
     float ySteps = yrel/dist;
 
     int i = 1;
-    /*for(; i < dist/SMOOTHINGSTEPS; i++){
+    //We need to guard against seg faults via the buffer size
+    for(; i < dist && bufferPointer < CLICKBUFFERSIZE -2; i++){
         buffered[bufferPointer] = (int)(x - xSteps*i);
         buffered[bufferPointer+1] = (int)(y - ySteps*i);
-        printf("%d, %d \n", buffered[bufferPointer],buffered[bufferPointer+1]);
         bufferPointer= bufferPointer+2;
-    }
-*/
 
-    for(i=1; i < abs(xrel); i++){
-        buffered[bufferPointer]   = x+i;
-        buffered[bufferPointer+1] = (int)(y + ySteps*i);
-        bufferPointer = bufferPointer+2;
     }
     
 
@@ -239,6 +232,7 @@ void handleMouseEvent(SDL_Event event){
         bufferPointer = bufferPointer+2;
         if(bufferPointer > CLICKBUFFERSIZE){
             puts("aw shit ");//what a good error message for now
+            bufferPointer = 0;
         }
     }
 }
