@@ -35,6 +35,8 @@ idea for program flow for a desk:
   those as they come. 
   Because of this, we'll have to be able to support some type of asynchronous events or
   we'll use the nonnblocking network ports to query the port for anything new.
+--MMAP idea as of 2/7/13
+  It would be wise to have an outgoing and incoming mmap file, that way I avoid reader writer problems
 
 -network.c
 	This file is going to become something like the common base that each desk sits on

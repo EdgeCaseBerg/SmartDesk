@@ -85,10 +85,18 @@ void smoothPath(Uint16 x, Uint16 y, Sint16 xrel, Sint16 yrel){
     float ySteps = yrel/dist;
 
     int i = 1;
-    for(; i < dist/SMOOTHINGSTEPS; i++){
+    /*for(; i < dist/SMOOTHINGSTEPS; i++){
         buffered[bufferPointer] = (int)(x - xSteps*i);
         buffered[bufferPointer+1] = (int)(y - ySteps*i);
+        printf("%d, %d \n", buffered[bufferPointer],buffered[bufferPointer+1]);
         bufferPointer= bufferPointer+2;
+    }
+*/
+
+    for(i=1; i < abs(xrel); i++){
+        buffered[bufferPointer]   = x+i;
+        buffered[bufferPointer+1] = (int)(y + ySteps*i);
+        bufferPointer = bufferPointer+2;
     }
     
 
