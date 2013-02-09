@@ -43,12 +43,14 @@ int setupGraphicModule(int fd, GraphicModule * module);
 *	event: The SDL_Event to handle
 *	stopFlag: Sentinal value to stop the graphics
 */
-void handleKeyEvent(SDL_Event  event, int *stopFlag);
+void handleKeyEvent(SDL_Event  event, int *stopFlag, GraphicModule * module);
 
 /*
 *Handles all Mouse events
 *	event: The SDL_Event to handle
 */
 void handleMouseEvent(SDL_Event event);
+
+void smoothPath(Uint16 x, Uint16 y, Sint16 xrel, Sint16 yrel);
 
 #endif
