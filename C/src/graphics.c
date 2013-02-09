@@ -75,16 +75,22 @@ int setupGraphicModule(int fd, GraphicModule * module){
 
 void smoothPath(Uint16 x, Uint16 y, Sint16 xrel, Sint16 yrel){
     //The relative x,y tell us how far away from the previous x,y we were.
-    printf("%d %d, %d %d\n", x,y,x-xrel,y-yrel);
+    printf("%d %d, %d %d\n", x,y,xrel,yrel);
     //x-xrel gives us the previous coordinate
     //We can use this to define a path between the points and fill in holes
     float dist = sqrt((x-(x-xrel))*(x-(x-xrel)) + (y-(y-yrel))*(y-(y-yrel)));
 
     //Consider making these static or pre-declared for time saving
-    int xSteps = xrel/dist;
-    int ySteps = yrel/dist;
+    float xSteps = xrel/dist;
+    float ySteps = yrel/dist;
 
-    printf("steps %d,%d, %f\n", xSteps,ySteps,dist);
+    int i = 1;
+    for(; i < dist/SMOOTHINGSTEPS; i++){
+        buffered[bufferPointer] = (int)(x - xSteps*i);
+        buffered[bufferPointer+1] = (int)(y - ySteps*i);
+        bufferPointer= bufferPointer+2;
+    }
+    
 
 }
 
