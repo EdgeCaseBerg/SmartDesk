@@ -76,6 +76,16 @@ int setupGraphicModule(int fd, GraphicModule * module){
 void smoothPath(Uint16 x, Uint16 y, Sint16 xrel, Sint16 yrel){
     //The relative x,y tell us how far away from the previous x,y we were.
     printf("%d %d, %d %d\n", x,y,x-xrel,y-yrel);
+    //x-xrel gives us the previous coordinate
+    //We can use this to define a path between the points and fill in holes
+    float dist = sqrt((x-(x-xrel))*(x-(x-xrel)) + (y-(y-yrel))*(y-(y-yrel)));
+
+    //Consider making these static or pre-declared for time saving
+    int xSteps = xrel/dist;
+    int ySteps = yrel/dist;
+
+    printf("steps %d,%d, %f\n", xSteps,ySteps,dist);
+
 }
 
 void setpixel(SDL_Surface *screen, int x, int y, Uint8 r, Uint8 g, Uint8 b)
@@ -186,6 +196,8 @@ void handleGraphicEvent(SDL_Event  event, GraphicModule * module, int * stopFlag
 	    case SDL_MOUSEMOTION:
 	    	handleMouseEvent(event);
 	    	break;
+        default:
+            break;
 	}
 }
 
@@ -196,6 +208,8 @@ void handleKeyEvent(SDL_Event  event, int *stopFlag, GraphicModule * module){
 	    	break;
         case SDLK_F1:
             clearScreen(module->screen);
+            break;
+        default:
             break;
 	}
 }
