@@ -78,7 +78,7 @@ int setupGraphicModule(int fd, GraphicModule * module){
         return -1;
     }
 
-    SDL_WM_SetCaption( "Smart Desk | Interactive Learning Software", "Smart Desk");
+    SDL_WM_SetCaption( "Smart Desk | Interactive Learning Software", NULL);
 
 	return 0;
 }
@@ -202,6 +202,8 @@ void runGraphics(GraphicModule * module){
         drawUI(module);   
     }
 
+    SDL_FreeSurface(module->screen);
+
     SDL_Quit();
   
 
@@ -269,11 +271,14 @@ void handleMouseEvent(SDL_Event event, GraphicModule * module){
     //Welcome to the bottleneck, we got fun and games
     //If lagging is you issue, here you must change!
     if(withinMenu(event.motion.x) != -1){
-        if(checkButtons(module->menu, event.motion.x,event.motion.y) != -1){
+        int button = checkButtons(module->menu, event.motion.x,event.motion.y);
+        if(button != -1){
             if(mouseDown){
                 //Click
+                puts("click");
             }else{
                 //Hover
+                puts("hover");
             }
         }
     }else{
