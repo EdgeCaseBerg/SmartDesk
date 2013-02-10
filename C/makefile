@@ -11,7 +11,7 @@ bin/engine.o: src/engine.c src/engine.h src/conf.h
 bin/network.o: src/conf.h src/network.h src/network.c
 	$(CC) -c src/network.c -o bin/network.o
 
-bin/graphics.o: src/graphics.c src/graphics.h src/conf.h src/button.c
+bin/graphics.o: src/graphics.c src/graphics.h src/conf.h src/menu.h
 	$(CC) -c src/graphics.c `sdl-config --cflags` -lm -o bin/graphics.o 
 
 bin/button.o: src/button.c src/button.h
@@ -33,7 +33,7 @@ bin/engined.o: src/engine.c src/engine.h src/conf.h
 bin/networkd.o: src/conf.h src/network.h src/network.c
 	$(CC) -c src/network.c -g -o bin/networkd.o
 
-bin/graphicsd.o: src/graphics.c src/graphics.h src/conf.h src/button.h
+bin/graphicsd.o: src/graphics.c src/graphics.h src/conf.h src/menu.h
 	$(CC) -c src/graphics.c -g `sdl-config --cflags` -lm -o bin/graphicsd.o 
 
 bin/buttond.o: src/button.c src/button.h

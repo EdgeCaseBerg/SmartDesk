@@ -4,6 +4,8 @@
 #include <SDL.h>
 #include <SDL/SDL.h>
 
+#define BUTTONBACKGROUNDOFFSET 5
+
 typedef struct{
 	Sint16 x,y;
 	Uint16 width,height;

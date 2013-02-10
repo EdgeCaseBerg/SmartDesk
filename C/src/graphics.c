@@ -26,7 +26,7 @@
 //Local includes
 #include "conf.h"
 #include "graphics.h"
-#include "button.h"
+#include "menu.h"
 
 //Global variables
 int mouseDown = 0;			           //True/False for if the mouse is 
@@ -157,10 +157,8 @@ void drawUI(GraphicModule * module){
         }
     }
 
-    //Draw the bitmap for the outline of the ui
-
-    //Draw the buttons
-    drawShadedButton(module->menu->buttons[EXITBUTTONINDEX],module->screen);
+    //Ask the menu to draw itself please
+    drawMenu(module->screen,module->menu);
 
     if(SDL_MUSTLOCK(module->screen)) SDL_UnlockSurface(module->screen);
   
