@@ -175,9 +175,10 @@ void clearScreen(SDL_Surface* screen){
         }
     }
 
-    int x, y, ytimesw;
-  
-
+    //int x, y, ytimesw;
+    
+    SDL_FillRect( screen, &screen->clip_rect, SDL_MapRGB( screen->format, 0xFF, 0xFF, 0xFF ) );
+/*
     for(y = 0; y < screen->h; y++ ) 
     {
     	//pitch is the scanline
@@ -187,7 +188,7 @@ void clearScreen(SDL_Surface* screen){
             setpixel(screen, x, ytimesw, 255, 255, 255);
         }
     }
-
+*/
     if(SDL_MUSTLOCK(screen)) SDL_UnlockSurface(screen);
   
     SDL_Flip(screen); 
@@ -229,6 +230,10 @@ int loadUI(GraphicModule * module){
 
     //Create and draw the buttons
     module->buttons[EXITBUTTONINDEX] = malloc(sizeof(ShadedButton));
+    if(module->buttons[EXITBUTTONINDEX] == NULL){
+        puts("failed making EXITBUTTONINDEX");
+        return -1;
+    }
     if(setupShadedButton(5, 5, 200, 200, 255, 0, 60, "poop",module->buttons[EXITBUTTONINDEX]) < 0){
         puts("Failed creating exit button");
         return -1;

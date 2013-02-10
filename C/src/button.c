@@ -16,10 +16,6 @@
 
 
 int setupShadedButton(Sint16 x, Sint16 y, Uint16 w, Uint16 h, Uint8 r, Uint8 g, Uint8 b, char * text,ShadedButton * button){
-	button = malloc(sizeof(ShadedButton));
-	if(button == NULL){
-		return -1;
-	}
 	button->x = x;
 	button->y = y;
 	button->width = w;
@@ -35,11 +31,11 @@ int setupShadedButton(Sint16 x, Sint16 y, Uint16 w, Uint16 h, Uint8 r, Uint8 g, 
 
 void drawShadedButton(ShadedButton * button, SDL_Surface *screen){
 	//We don't need to lock the screen for blitting
-	SDL_Rect backRect;
-	backRect.x = button->x - 5;
-	backRect.y = button->y -5;
-	backRect.w = button->width+5;
-	backRect.h = button->height+5;
+	SDL_Rect * backRect = malloc(sizeof(SDL_Rect));
+	backRect->x = button->x - 5;
+	backRect->y = button->y -5;
+	backRect->w = button->width+5;
+	backRect->h = button->height+5;
 
 	SDL_Rect foreRect;
 	if(button->clicked==1){
@@ -63,7 +59,7 @@ void drawShadedButton(ShadedButton * button, SDL_Surface *screen){
     btnForeColor = SDL_MapRGB( screen->format, button->r, button->g, button->b );
     btnBackColor = SDL_MapRGB( screen->format, button->r*2+1 % 256, button->g*2+1 % 256, button->b*2+1%256 );
 
-    if(SDL_FillRect(screen, &backRect, btnBackColor) <0 ){
+    if(SDL_FillRect(screen, backRect, btnBackColor) <0 ){
     	perror("btnBackColor");
     }
     if(SDL_FillRect(screen, &foreRect, btnForeColor) <0 ){
