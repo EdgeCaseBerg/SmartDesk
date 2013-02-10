@@ -22,9 +22,12 @@ do: someReallyLongButRatherDescriptiveFunctionName()
 do not: some_really_long_function_name()
 
 Constants should be in all caps:
-CONST CHAR * BACON = "I LOVE BACON"
+CHAR * BACON = "I LOVE BACON"
 It is appropriate to use _ to seperate constant's seperate words 
 if reading the constant is difficult without doing so
+
+If a variable being passed to a function is guaranteed to be read-only within 
+the function (and any calling functions within that one), then it should be designated const
 
 Comments should be descriptive, and describe oddities in code or 
 explain why an include is needed, etc.... no need to comment while

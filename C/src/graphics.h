@@ -50,8 +50,9 @@ void handleKeyEvent(SDL_Event  event, int *stopFlag, GraphicModule * module);
 
 /*Handles all Mouse events
 *	event: The SDL_Event to handle
+*	module: GraphicModule currently in use
 */
-void handleMouseEvent(SDL_Event event);
+void handleMouseEvent(SDL_Event event, GraphicModule * module);
 
 /*Takes the current mouse coordinates and there relative position and smooths a line between
 *	x: X coordinate of current mouse position

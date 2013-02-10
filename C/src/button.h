@@ -30,6 +30,13 @@ typedef struct{
 */
 int setupShadedButton(Sint16 x, Sint16 y, Uint16 w, Uint16 h, Uint8 r, Uint8 g, Uint8 b, char * text,ShadedButton * button);
 
+/*Boolean to tell if the given x,y are within the button's limits
+*	button: The button we're checking within
+*	x: The x coordinate to check
+*	y: The y coordinate to check
+*	returns -1 if the x,y pair are not within the button or the button is null, 0 if they are
+*/
+int within(const ShadedButton * button, const int x, const int y);
 
 /*Draws the button to the screen
 *

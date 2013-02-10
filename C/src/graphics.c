@@ -239,13 +239,13 @@ void handleGraphicEvent(SDL_Event  event, GraphicModule * module, int * stopFlag
 	    	break;
 	    case SDL_MOUSEBUTTONDOWN:
 	    	mouseDown = 1;
-            handleMouseEvent(event);
+            handleMouseEvent(event,module);
 	    	break;
 	    case SDL_MOUSEBUTTONUP:
 	    	mouseDown = 0;
 	    	break;
 	    case SDL_MOUSEMOTION:
-	    	handleMouseEvent(event);
+	    	handleMouseEvent(event,module);
 	    	break;
         default:
             break;
@@ -265,20 +265,32 @@ void handleKeyEvent(SDL_Event  event, int *stopFlag, GraphicModule * module){
 	}
 }
 
-void handleMouseEvent(SDL_Event event){
-    if(mouseDown){
-        if(event.motion.x < SCREENWIDTH && event.motion.y < SCREENHEIGHT){
-            buffered[bufferPointer] = event.motion.x;
-            buffered[bufferPointer+1] = event.motion.y;
-            //If smoothing is off this will be optimized out by the compiler
-            if(SMOOTHING==1){
-                smoothPath(event.motion.x,event.motion.y,event.motion.xrel,event.motion.yrel);
+void handleMouseEvent(SDL_Event event, GraphicModule * module){
+    //Welcome to the bottleneck, we got fun and games
+    //If lagging is you issue, here you must change!
+    if(withinMenu(event.motion.x) != -1){
+        if(checkButtons(module->menu, event.motion.x,event.motion.y) != -1){
+            if(mouseDown){
+                //Click
+            }else{
+                //Hover
             }
-            bufferPointer = bufferPointer+2;
-        }    
-        if(bufferPointer > CLICKBUFFERSIZE){
-            puts("aw shit ");//what a good error message for now
-            bufferPointer = 0;
+        }
+    }else{
+        if(mouseDown){
+            if(event.motion.x < SCREENWIDTH && event.motion.y < SCREENHEIGHT){
+                buffered[bufferPointer] = event.motion.x;
+                buffered[bufferPointer+1] = event.motion.y;
+                //If smoothing is off this will be optimized out by the compiler
+                if(SMOOTHING==1){
+                    smoothPath(event.motion.x,event.motion.y,event.motion.xrel,event.motion.yrel);
+                }
+                bufferPointer = bufferPointer+2;
+            }    
+            if(bufferPointer > CLICKBUFFERSIZE){
+                puts("aw shit ");//what a good error message for now
+                bufferPointer = 0;
+            }
         }
     }
 }
