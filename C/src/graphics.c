@@ -245,6 +245,7 @@ void handleGraphicEvent(SDL_Event  event, GraphicModule * module, int * stopFlag
 	    	break;
 	    case SDL_MOUSEBUTTONUP:
 	    	mouseDown = 0;
+            handleMouseEvent(event,module);
 	    	break;
 	    case SDL_MOUSEMOTION:
 	    	handleMouseEvent(event,module);
@@ -275,10 +276,19 @@ void handleMouseEvent(SDL_Event event, GraphicModule * module){
         if(button != -1){
             if(mouseDown){
                 //Click
-                puts("click");
+                module->menu->buttons[button]->clicked = 1;
+                module->menu->buttons[button]->hover = 0;
             }else{
                 //Hover
-                puts("hover");
+                module->menu->buttons[button]->clicked = 0;
+                module->menu->buttons[button]->hover = 1;
+            }
+        }else{
+            //Not in any buttons, make sure all of them are in their default state
+            int i;
+            for(i=0; i < NUMBER_OF_BUTTONS; i++){
+                module->menu->buttons[i]->clicked = 0;
+                module->menu->buttons[i]->hover = 0;
             }
         }
     }else{

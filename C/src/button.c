@@ -24,6 +24,7 @@ int setupShadedButton(Sint16 x, Sint16 y, Uint16 w, Uint16 h, Uint8 r, Uint8 g, 
 	button->g = g;
 	button->b = b;
 	button->clicked = 0;
+	button->hover = 0;
 	button->text = malloc(sizeof(char)*strlen(text)+1);
 	strcpy(button->text,text);
 	return 0;
@@ -71,9 +72,12 @@ void drawShadedButton(ShadedButton * button, SDL_Surface *screen){
 	Uint32 btnBackColor;
 
 	//Create the actual Uint32 colors for the button
-	if(button->clicked==1){
+	if(button->clicked!=0){
 		btnBackColor = SDL_MapRGB( screen->format, button->r, button->g, button->b );
 	    btnForeColor = SDL_MapRGB( screen->format, button->r*2+1 % 256, button->g*2+1 % 256, button->b*2+1%256 );
+	}else if(button->hover!=0){
+		btnForeColor = SDL_MapRGB( screen->format, button->r, button->g, button->b );
+		btnBackColor = SDL_MapRGB( screen->format, button->r*3+1 % 256, button->g*3+1 % 256, button->b*3+1%256 );
 	}else{
 	    btnForeColor = SDL_MapRGB( screen->format, button->r, button->g, button->b );
 	    btnBackColor = SDL_MapRGB( screen->format, button->r*2+1 % 256, button->g*2+1 % 256, button->b*2+1%256 );

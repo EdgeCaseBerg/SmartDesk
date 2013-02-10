@@ -11,6 +11,7 @@ typedef struct{
 	Uint16 width,height;
 	Uint8 r,g,b; //We could replace these 3 by a Uint32 color from SDL_MapRGB
 	int clicked; //Boolean for if the button is being clicked or not (to shade or not)
+	int hover; 	 //Boolean for if the button is being hovered over
 	char * text; //Text to be placed in the button (Haven't figured out best way to do this)
 } ShadedButton;
 
