@@ -21,28 +21,41 @@
 
 //Menu and Button constants
 //Define either right handed or left handed 
-#define RIGHTHANDED
-#ifdef RIGHTHANDED
-	#define MENUXSTART 0
-	#define MENUXEND (SCREENWIDTH/4)
+#define RIGHT_HANDED
+#ifdef RIGHT_HANDED
+	#define MENU_X_START 0
+	#define MENU_X_END (SCREENWIDTH/5)
+	#define MENU_DIVIDER MENU_X_END
 #else
 	// 1/4 of the screen will be the menu (unless that turns out to be too big)
-	#define MENUXSTART (3*(SCREENWIDTH/4))
-	#define MENUXEND SCREENWIDTH
+	#define MENU_X_START (4*(SCREENWIDTH/5))
+	#define MENU_X_END SCREENWIDTH
+	#define MENU_DIVIDER MENU_X_START
 #endif
-#define MENUWIDTH (MENUXEND - MENUXSTART)
-#define BUTTONWIDTH  (3*(MENUWIDTH/4))
-#define BUTTONHEIGHT 30
-#define BUTTONHORIZONTALOFFSET (MENUWIDTH/8)
-#define BUTTONVERTICALOFFSET (BUTTONHEIGHT/4)
-#define NUMBEROFBUTTONS 1
-#define EXITBUTTONINDEX 0
-#define EXITBUTTONLOCATION (SCREENHEIGHT - BUTTONHEIGHT - BUTTONVERTICALOFFSET)
+//Coloring of the menu's dividers and such
+#define MENU_LINE_R 0
+#define MENU_LINE_B 0
+#define MENU_LINE_G 0
+#define MENU_BACKCOLOR 0xD3D3D3
+
+#define MENU_DIVIDER_WIDTH 2;
+#define MENU_WIDTH (MENU_X_END - MENU_X_START)
+#define BUTTON_WIDTH  (3*(MENU_WIDTH/4))
+#define BUTTON_HEIGHT 30
+#define BUTTON_HORIZONTAL_OFFSET (MENU_WIDTH/8)
+#define BUTTON_VERTICAL_OFFSET (BUTTON_HEIGHT/4)
+#define NUMBER_OF_BUTTONS 1
+#define EXIT_BUTTON_INDEX 0
+#define EXIT_BUTTON_LOCATION (SCREENHEIGHT - BUTTON_HEIGHT - BUTTON_VERTICAL_OFFSET)
 
 
 
 typedef struct{
-	ShadedButton *buttons[NUMBEROFBUTTONS];
+	ShadedButton *buttons[NUMBER_OF_BUTTONS];
+	SDL_Rect * divider;
+	Uint8 r;
+	Uint8 g;
+	Uint8 b;
 } Menu;
 
 /*Creates all the buttons for the menu and orientes them on the screen

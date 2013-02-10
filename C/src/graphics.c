@@ -78,7 +78,7 @@ int setupGraphicModule(int fd, GraphicModule * module){
         return -1;
     }
 
-    SDL_WM_SetCaption( "Smart Desk | Interactive Learning Software", "hello?");
+    SDL_WM_SetCaption( "Smart Desk | Interactive Learning Software", "Smart Desk");
 
 	return 0;
 }

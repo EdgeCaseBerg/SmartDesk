@@ -32,6 +32,10 @@ int setupShadedButton(Sint16 x, Sint16 y, Uint16 w, Uint16 h, Uint8 r, Uint8 g, 
 void drawShadedButton(ShadedButton * button, SDL_Surface *screen){
 	//We don't need to lock the screen for blitting
 	SDL_Rect * backRect = malloc(sizeof(SDL_Rect));
+	if(backRect == NULL){
+		//Well, I'm out if we can't contain 4 16 bit ints in memory
+		return;
+	}
 	backRect->x = button->x      - BUTTONBACKGROUNDOFFSET;
 	backRect->y = button->y      - BUTTONBACKGROUNDOFFSET;
 	backRect->w = button->width  + 2*BUTTONBACKGROUNDOFFSET;
