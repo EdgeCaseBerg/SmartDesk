@@ -78,6 +78,9 @@ int setupGraphicModule(int fd, GraphicModule * module){
         return -1;
     }
 
+    //Set the stop flag
+    module->stopFlag = 0;
+
     SDL_WM_SetCaption( "Smart Desk | Interactive Learning Software", NULL);
 
 	return 0;
@@ -191,10 +194,10 @@ void runGraphics(GraphicModule * module){
     clearScreen(module->screen);
     
     //Main graphics event loop goes until an event causes keyquit != 0
-    while(keyQuit == 0){
+    while(module->stopFlag == 0){
         //Loop until there are no more events to process
         while(SDL_PollEvent(&event)) {    
-        	handleGraphicEvent(event, module,&keyQuit);  
+        	handleGraphicEvent(event, module);  
 		}
         //Since smoothing is a preprocessor, if it's set to !1 then this call
         //should be optimized out by the compiler
@@ -229,15 +232,15 @@ int loadUI(GraphicModule * module){
 
 }
 
-void handleGraphicEvent(SDL_Event  event, GraphicModule * module, int * stopFlag){
+void handleGraphicEvent(SDL_Event  event, GraphicModule * module){
 	//Giant Case to handle all events
 	switch (event.type){
         case SDL_QUIT:
 	       	//Halt the execution of the graphics
-	       	*stopFlag = 1;
+	       	module->stopFlag = 1;
 	       	break;
 	    case SDL_KEYDOWN:
-	    	handleKeyEvent(event,stopFlag,module);
+	    	handleKeyEvent(event,module);
 	    	break;
 	    case SDL_MOUSEBUTTONDOWN:
 	    	mouseDown = 1;
@@ -255,10 +258,10 @@ void handleGraphicEvent(SDL_Event  event, GraphicModule * module, int * stopFlag
 	}
 }
 
-void handleKeyEvent(SDL_Event  event, int *stopFlag, GraphicModule * module){
+void handleKeyEvent(SDL_Event  event, GraphicModule * module){
 	switch( event.key.keysym.sym ){
 		case SDLK_ESCAPE:
-	    	*stopFlag = 1;
+	    	module->stopFlag = 1;
 	    	break;
         case SDLK_F1:
             clearScreen(module->screen);
@@ -270,7 +273,7 @@ void handleKeyEvent(SDL_Event  event, int *stopFlag, GraphicModule * module){
 
 void handleMouseEvent(SDL_Event event, GraphicModule * module){
     //Welcome to the bottleneck, we got fun and games
-    //If lagging is you issue, here you must change!
+    //If lagging is your issue, here you must change!
     if(withinMenu(event.motion.x) != -1){
         int button = checkButtons(module->menu, event.motion.x,event.motion.y);
         if(button != -1){
@@ -279,7 +282,11 @@ void handleMouseEvent(SDL_Event event, GraphicModule * module){
                 module->menu->buttons[button]->clicked = 1;
                 module->menu->buttons[button]->hover = 0;
             }else{
-                //Hover
+                //Hover or finished clicking
+                if(module->menu->buttons[button]->clicked == 1){
+                    //We just finished clicking and are about to change back to a hover state
+
+                }
                 module->menu->buttons[button]->clicked = 0;
                 module->menu->buttons[button]->hover = 1;
             }
@@ -292,6 +299,7 @@ void handleMouseEvent(SDL_Event event, GraphicModule * module){
             }
         }
     }else{
+        //Drawing
         if(mouseDown){
             if(event.motion.x < SCREENWIDTH && event.motion.y < SCREENHEIGHT){
                 buffered[bufferPointer] = event.motion.x;

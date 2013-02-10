@@ -12,6 +12,7 @@ typedef struct{
 	int memShareFD;
 	SDL_Surface *screen;
 	Menu * menu;
+	int stopFlag;
 } GraphicModule;
 
 /*Set's a pixel on the screen at the x,y coordinates to the r g b value.
@@ -32,7 +33,7 @@ void runGraphics(GraphicModule * module);
 *	eventType: An SDL event type
 *	module: GraphicModule currently in use
 */
-void handleGraphicEvent(SDL_Event event, GraphicModule * module, int * stopFlag);
+void handleGraphicEvent(SDL_Event event, GraphicModule * module);
 
 /*
 *Set's up the graphics module
@@ -44,9 +45,9 @@ int setupGraphicModule(int fd, GraphicModule * module);
 
 /*Handles all key presses
 *	event: The SDL_Event to handle
-*	stopFlag: Sentinal value to stop the graphics
+*	module: Pointer to a GraphicModule where we are handling events
 */
-void handleKeyEvent(SDL_Event  event, int *stopFlag, GraphicModule * module);
+void handleKeyEvent(SDL_Event  event, GraphicModule * module);
 
 /*Handles all Mouse events
 *	event: The SDL_Event to handle
