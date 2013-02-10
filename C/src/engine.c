@@ -72,7 +72,7 @@ void * createAndRunNetwork(void *memFD){
 		return NULL;
 	}
 
-	runServer(&nm);
+	//runServer(&nm);
 	
 	return NULL;
 }

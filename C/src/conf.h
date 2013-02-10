@@ -23,9 +23,6 @@
 	#define CLICKBUFFERSIZE 500 
 	#define SMOOTHING 1
 
-	//Menu and Button constants
-	#define NUMBEROFBUTTONS 1
-	#define EXITBUTTONINDEX 0
 
 	
 

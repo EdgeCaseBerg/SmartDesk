@@ -78,7 +78,7 @@ int setupGraphicModule(int fd, GraphicModule * module){
         return -1;
     }
 
-    SDL_WM_SetCaption( "Smart Desk | Interactive Learning Software", NULL );
+    SDL_WM_SetCaption( "Smart Desk | Interactive Learning Software", "hello?");
 
 	return 0;
 }
@@ -160,7 +160,7 @@ void drawUI(GraphicModule * module){
     //Draw the bitmap for the outline of the ui
 
     //Draw the buttons
-    drawShadedButton(module->buttons[EXITBUTTONINDEX],module->screen);
+    drawShadedButton(module->menu->buttons[EXITBUTTONINDEX],module->screen);
 
     if(SDL_MUSTLOCK(module->screen)) SDL_UnlockSurface(module->screen);
   
@@ -175,20 +175,11 @@ void clearScreen(SDL_Surface* screen){
         }
     }
 
-    //int x, y, ytimesw;
+    int x, y, ytimesw;
     
     SDL_FillRect( screen, &screen->clip_rect, SDL_MapRGB( screen->format, 0xFF, 0xFF, 0xFF ) );
-/*
-    for(y = 0; y < screen->h; y++ ) 
-    {
-    	//pitch is the scanline
-        ytimesw = y*screen->pitch/BITSPERPIXEL;
-        for( x = 0; x < screen->w; x++ ) 
-        {
-            setpixel(screen, x, ytimesw, 255, 255, 255);
-        }
-    }
-*/
+    bufferPointer = 0;
+    
     if(SDL_MUSTLOCK(screen)) SDL_UnlockSurface(screen);
   
     SDL_Flip(screen); 
@@ -220,22 +211,17 @@ void runGraphics(GraphicModule * module){
 
 //-1 for fail 0 for good
 int loadUI(GraphicModule * module){
-    //Load the user interface (there will be a skin that sits on top of everything)
-    //then the buttons that we actually need to have interactions with will be drawn on top
-    //And all the other stuff will be loaded and crap.
-
-    //Load the bmp for the UI
+    module->menu = malloc(sizeof(Menu));
 
     //Load the bitmap font and make the proper sprites and such
 
-    //Create and draw the buttons
-    module->buttons[EXITBUTTONINDEX] = malloc(sizeof(ShadedButton));
-    if(module->buttons[EXITBUTTONINDEX] == NULL){
-        puts("failed making EXITBUTTONINDEX");
+    if(module->menu == NULL){
+        puts("failed allocating memory for menu");
         return -1;
     }
-    if(setupShadedButton(5, 5, 200, 200, 255, 0, 60, "poop",module->buttons[EXITBUTTONINDEX]) < 0){
-        puts("Failed creating exit button");
+
+    if(setupMenu(module->menu)){
+        puts("failed setting up menu");
         return -1;
     }
 

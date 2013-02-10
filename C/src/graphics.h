@@ -5,13 +5,13 @@
 #include <SDL.h>
 #include <SDL/SDL.h>
 
-#include "button.h"
+#include "menu.h"
 
 typedef struct{
 	void * memShareAddr;
 	int memShareFD;
 	SDL_Surface *screen;
-	ShadedButton *buttons[NUMBEROFBUTTONS];
+	Menu * menu;
 } GraphicModule;
 
 /*Set's a pixel on the screen at the x,y coordinates to the r g b value.

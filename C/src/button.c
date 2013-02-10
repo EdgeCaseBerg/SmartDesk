@@ -32,18 +32,18 @@ int setupShadedButton(Sint16 x, Sint16 y, Uint16 w, Uint16 h, Uint8 r, Uint8 g, 
 void drawShadedButton(ShadedButton * button, SDL_Surface *screen){
 	//We don't need to lock the screen for blitting
 	SDL_Rect * backRect = malloc(sizeof(SDL_Rect));
-	backRect->x = button->x - 5;
-	backRect->y = button->y -5;
-	backRect->w = button->width+5;
-	backRect->h = button->height+5;
+	backRect->x = button->x - 2;
+	backRect->y = button->y -2;
+	backRect->w = button->width+2;
+	backRect->h = button->height+2;
 
 	SDL_Rect foreRect;
 	if(button->clicked==1){
 		//Shift the 'top' part of the button down when we click it
 		foreRect.x = button->x;
-		foreRect.y = button->y +5;
+		foreRect.y = button->y +2;
 		foreRect.w = button->width;
-		foreRect.h = button->height-5;
+		foreRect.h = button->height-2;
 	}else{ //Yes we could do a foreRect = {}... but if someone changes SDL's struct order thats screwed
 		foreRect.x = button->x;
 		foreRect.y = button->y;
