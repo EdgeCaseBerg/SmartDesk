@@ -271,6 +271,24 @@ void handleKeyEvent(SDL_Event  event, GraphicModule * module){
 	}
 }
 
+void handleButtonClick(GraphicModule * module, int buttonID){
+    //Handle clicking buttons and the like
+    switch(buttonID){
+        case EXIT_BUTTON_INDEX:
+            module->stopFlag = 1;
+            break;
+        case BRUSH_INCREASE_INDEX:
+            brushSize++;
+            break;
+        case BRUSH_DECREASE_INDEX:
+            brushSize = brushSize < 0 ? 1 : brushSize-1;
+            break;
+        default:
+            break;
+    }
+
+}
+
 void handleMouseEvent(SDL_Event event, GraphicModule * module){
     //Welcome to the bottleneck, we got fun and games
     //If lagging is your issue, here you must change!
@@ -285,6 +303,7 @@ void handleMouseEvent(SDL_Event event, GraphicModule * module){
                 //Hover or finished clicking
                 if(module->menu->buttons[button]->clicked == 1){
                     //We just finished clicking and are about to change back to a hover state
+                    handleButtonClick(module, button);
 
                 }
                 module->menu->buttons[button]->clicked = 0;
@@ -299,7 +318,7 @@ void handleMouseEvent(SDL_Event event, GraphicModule * module){
             }
         }
     }else{
-        //Drawing
+        //Drawing mode. (Once we are loading documents some more stuff will have to go here)
         if(mouseDown){
             if(event.motion.x < SCREENWIDTH && event.motion.y < SCREENHEIGHT){
                 buffered[bufferPointer] = event.motion.x;

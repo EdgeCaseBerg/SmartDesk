@@ -47,9 +47,22 @@ int setupMenu(Menu * menu){
 
 	//Exit button details
 	menu->buttons[EXIT_BUTTON_INDEX] = malloc(sizeof(ShadedButton));
-    if(setupShadedButton(MENU_X_START + BUTTON_HORIZONTAL_OFFSET, EXIT_BUTTON_LOCATION, BUTTON_WIDTH, BUTTON_HEIGHT, 60, 40, 40, "poop",menu->buttons[EXIT_BUTTON_INDEX]) < 0){
+    if(setupShadedButton(MENU_X_START + BUTTON_HORIZONTAL_OFFSET, EXIT_BUTTON_LOCATION, BUTTON_WIDTH, BUTTON_HEIGHT, 60, 40, 40, "Exit",menu->buttons[EXIT_BUTTON_INDEX]) < 0){
         puts("Failed creating exit button");
         return -1;
+    }
+
+    //Brush size button details
+    menu->buttons[BRUSH_INCREASE_INDEX] = malloc(sizeof(ShadedButton));
+    if(setupShadedButton(MENU_X_START + BUTTON_HORIZONTAL_OFFSET, BRUSH_INCREASE_LOCATION,BUTTON_WIDTH/3,BUTTON_HEIGHT, 60,40,40,"Brush+",menu->buttons[BRUSH_INCREASE_INDEX]) < 0){
+    	puts("failed creating brush+ button");
+    	return -1;
+    }
+
+    menu->buttons[BRUSH_DECREASE_INDEX] = malloc(sizeof(ShadedButton));
+    if(setupShadedButton(MENU_X_START + BUTTON_WIDTH/2 + 2*BUTTON_HORIZONTAL_OFFSET,BRUSH_DECREASE_LOCATION,BUTTON_WIDTH/3,BUTTON_HEIGHT,60,40,40,"Brush-",menu->buttons[BRUSH_DECREASE_INDEX]) < 0){
+    	puts("failed creating brush- button");
+    	return -1;
     }
 
 	return 0;
@@ -111,8 +124,10 @@ void drawMenu(SDL_Surface *screen, Menu * menu){
 	}
 
 
-
 	//Draw all the buttons
-	drawShadedButton(menu->buttons[EXIT_BUTTON_INDEX],screen);
+	int i;
+	for(i=0; i < NUMBER_OF_BUTTONS; i++){
+		drawShadedButton(menu->buttons[i],screen);
+	}
 
 }
