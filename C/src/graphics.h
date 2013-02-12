@@ -6,12 +6,14 @@
 #include <SDL/SDL.h>
 
 #include "menu.h"
+#include "bitfont.h"
 
 typedef struct{
 	void * memShareAddr;
 	int memShareFD;
 	SDL_Surface *screen;
 	Menu * menu;
+	BitFont * font;
 	int stopFlag;
 } GraphicModule;
 

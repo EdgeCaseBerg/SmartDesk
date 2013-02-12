@@ -14,12 +14,9 @@
 #include "SDL/SDL.h"
 #include "SDL/SDL_image.h"
 
-//Local includes
-#include "conf.h"
-
 typedef struct{
 	SDL_Surface * bitmap;	//Surface for bitmaps to reside on
-	SDL_Rects chars[256];	//256 ASCII Characters
+	SDL_Rect chars[256];	//256 ASCII Characters
 	int newline;
 	int space;
 }BitFont;
@@ -39,7 +36,7 @@ void buildFontFromImage(BitFont * bitFont);
 *	text: The text to be shown (should coincide with 256 ASCII)
 *	surface: The surface to draw the text onto
 */
-void bitmapFontOut(int x, int y, char * text, SDL_Surface * surface);
+void drawFont(int x, int y, char * text, SDL_Surface * surface);
 
 
 

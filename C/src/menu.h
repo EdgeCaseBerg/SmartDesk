@@ -19,6 +19,7 @@
 #include "conf.h"
 #include "button.h"
 
+
 //Menu and Button constants
 //Define either right handed or left handed 
 #define RIGHT_HANDED

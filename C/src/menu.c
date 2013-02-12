@@ -69,7 +69,7 @@ int setupMenu(Menu * menu){
 }
 
 int withinMenu(const int x){
-	#ifdef RIGHT_HANDED
+	#ifdef RIGHT_HANDE
 		if(x < MENU_DIVIDER_X){
 			return 0;
 		}

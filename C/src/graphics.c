@@ -27,6 +27,7 @@
 #include "conf.h"
 #include "graphics.h"
 #include "menu.h"
+#include "bitfont.h"
 
 //Global variables
 int mouseDown = 0;			           //True/False for if the mouse is 
@@ -71,6 +72,13 @@ int setupGraphicModule(int fd, GraphicModule * module){
 		return -1;
 	}
    
+    //Load the bitmap engine within the module
+    module->font = malloc(sizeof(BitFont*));
+    if(setupBitFont(module->font) < 0){
+        puts("Failed to create the bitmap engine");
+        SDL_Quit();
+        return -1;
+    }
 
     if(loadUI(module) < 0){
         puts("Failed to load User Interface");
