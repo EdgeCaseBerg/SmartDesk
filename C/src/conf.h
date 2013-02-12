@@ -23,6 +23,9 @@
 	#define CLICKBUFFERSIZE 500 
 	#define SMOOTHING 1
 
+	//Bitmap loader settings
+	#define BITMAPFILE "../tempascii.gif"
+
 
 	
 
