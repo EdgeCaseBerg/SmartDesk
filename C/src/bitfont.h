@@ -14,6 +14,10 @@
 #include "SDL/SDL.h"
 #include "SDL/SDL_image.h"
 
+
+#define CELL_DIM 16
+#define CELL_BACKGROUND SDL_MapRGB( font->bitmap->format, 0,0,0)
+
 typedef struct{
 	SDL_Surface * bitmap;	//Surface for bitmaps to reside on
 	SDL_Rect chars[256];	//256 ASCII Characters

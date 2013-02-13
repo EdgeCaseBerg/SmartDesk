@@ -46,4 +46,4 @@ bin/menud.o: src/menu.c src/menu.h
 	$(CC) -c src/menu.c `sdl-config --cflags` -g -o bin/menud.o
 
 bin/bitfontd.o: src/bitfont.c src/bitfont.h
-	$(CC) -c src/bitfont.c `sdl-config --libs` -g -o bin/bitfontd.o
+	$(CC) -c src/bitfont.c `sdl-config --clfags` -g -o bin/bitfontd.o
