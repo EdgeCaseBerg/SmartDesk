@@ -55,5 +55,13 @@ int within(const ShadedButton * button, const int x, const int y);
 */
 void drawShadedButton(ShadedButton * button, SDL_Surface *screen);
 
+/*Removes the button from the screen (by drawing white over it)
+*	button: The button to be undrawn
+*	screen: The screen for the button to be undrawn from
+*	Note: This just draws white over the button, not a good way of doing it, and this should be changed
+*		  so that buttons reside on their own surface and we can not lose data underneath the buttons
+*/
+void hideButton(ShadedButton * button, SDL_Surface * screen);
+
 
 #endif

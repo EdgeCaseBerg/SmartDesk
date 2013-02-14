@@ -296,8 +296,8 @@ void handleButtonClick(GraphicModule * module, int buttonID){
         case BRUSH_BUTTON_INDEX:
             if(module->menu->subMenuActive != 0){
                 module->menu->subMenuActive = 0;
-                module->menu->buttons[BRUSH_INCREASE_INDEX]->visible = 0;
-                module->menu->buttons[BRUSH_DECREASE_INDEX]->visible = 0;
+                hideButton(module->menu->buttons[BRUSH_INCREASE_INDEX],module->screen);
+                hideButton(module->menu->buttons[BRUSH_DECREASE_INDEX],module->screen);
             }else{
                 //By assigning the button id, we can determine the
                 //proper sub menu to pop out
