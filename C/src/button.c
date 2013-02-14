@@ -13,9 +13,10 @@
 
 //Local Includes
 #include "button.h"
+#include "bitfont.h"
 
 
-int setupShadedButton(Sint16 x, Sint16 y, Uint16 w, Uint16 h, Uint8 r, Uint8 g, Uint8 b, char * text,ShadedButton * button){
+int setupShadedButton(Sint16 x, Sint16 y, Uint16 w, Uint16 h, Uint8 r, Uint8 g, Uint8 b, char * text,ShadedButton * button, BitFont * font){
 	button->x = x;
 	button->y = y;
 	button->width = w;
@@ -26,6 +27,7 @@ int setupShadedButton(Sint16 x, Sint16 y, Uint16 w, Uint16 h, Uint8 r, Uint8 g, 
 	button->clicked = 0;
 	button->hover = 0;
 	button->text = malloc(sizeof(char)*strlen(text)+1);
+	button->font = font;
 	strcpy(button->text,text);
 	return 0;
 }

@@ -12,7 +12,7 @@
 #include "conf.h"
 
 //0 for win, -1 for fail
-int setupMenu(Menu * menu){
+int setupMenu(Menu * menu, BitFont * font){
 	if(menu == NULL){
 		puts( "Menu pointer is null");
 		return -1;
@@ -39,6 +39,7 @@ int setupMenu(Menu * menu){
 	menu->docDivide->y = DOCPANE_DIVIDER_Y_END;
 	menu->docDivide->w = MENU_WIDTH;
 	menu->docDivide->h = MENU_DIVIDER_WIDTH;
+	menu->font = font;
 
 	//Decide on the color:
 	menu->r = MENU_LINE_R;
@@ -47,20 +48,20 @@ int setupMenu(Menu * menu){
 
 	//Exit button details
 	menu->buttons[EXIT_BUTTON_INDEX] = malloc(sizeof(ShadedButton));
-    if(setupShadedButton(MENU_X_START + BUTTON_HORIZONTAL_OFFSET, EXIT_BUTTON_LOCATION, BUTTON_WIDTH, BUTTON_HEIGHT, 60, 40, 40, "Exit",menu->buttons[EXIT_BUTTON_INDEX]) < 0){
+    if(setupShadedButton(MENU_X_START + BUTTON_HORIZONTAL_OFFSET, EXIT_BUTTON_LOCATION, BUTTON_WIDTH, BUTTON_HEIGHT, 60, 40, 40, "Exit",menu->buttons[EXIT_BUTTON_INDEX],font) < 0){
         puts("Failed creating exit button");
         return -1;
     }
 
     //Brush size button details
     menu->buttons[BRUSH_INCREASE_INDEX] = malloc(sizeof(ShadedButton));
-    if(setupShadedButton(MENU_X_START + BUTTON_HORIZONTAL_OFFSET, BRUSH_INCREASE_LOCATION,BUTTON_WIDTH/3,BUTTON_HEIGHT, 60,40,40,"Brush+",menu->buttons[BRUSH_INCREASE_INDEX]) < 0){
+    if(setupShadedButton(MENU_X_START + BUTTON_HORIZONTAL_OFFSET, BRUSH_INCREASE_LOCATION,BUTTON_WIDTH/3,BUTTON_HEIGHT, 60,40,40,"Brush+",menu->buttons[BRUSH_INCREASE_INDEX],font) < 0){
     	puts("failed creating brush+ button");
     	return -1;
     }
 
     menu->buttons[BRUSH_DECREASE_INDEX] = malloc(sizeof(ShadedButton));
-    if(setupShadedButton(MENU_X_START + BUTTON_WIDTH/2 + 2*BUTTON_HORIZONTAL_OFFSET,BRUSH_DECREASE_LOCATION,BUTTON_WIDTH/3,BUTTON_HEIGHT,60,40,40,"Brush-",menu->buttons[BRUSH_DECREASE_INDEX]) < 0){
+    if(setupShadedButton(MENU_X_START + BUTTON_WIDTH/2 + 2*BUTTON_HORIZONTAL_OFFSET,BRUSH_DECREASE_LOCATION,BUTTON_WIDTH/3,BUTTON_HEIGHT,60,40,40,"Brush-",menu->buttons[BRUSH_DECREASE_INDEX],font) < 0){
     	puts("failed creating brush- button");
     	return -1;
     }

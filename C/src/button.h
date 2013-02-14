@@ -4,6 +4,8 @@
 #include <SDL.h>
 #include <SDL/SDL.h>
 
+#include "bitfont.h"
+
 #define BUTTONBACKGROUNDOFFSET 5
 
 typedef struct{
@@ -13,6 +15,7 @@ typedef struct{
 	int clicked; //Boolean for if the button is being clicked or not (to shade or not)
 	int hover; 	 //Boolean for if the button is being hovered over
 	char * text; //Text to be placed in the button (Haven't figured out best way to do this)
+	BitFont * font;
 } ShadedButton;
 
 
@@ -29,7 +32,7 @@ typedef struct{
 *	button: A reference to the button variable you are filling out
 *	returns -1 if the button is not created correctly
 */
-int setupShadedButton(Sint16 x, Sint16 y, Uint16 w, Uint16 h, Uint8 r, Uint8 g, Uint8 b, char * text,ShadedButton * button);
+int setupShadedButton(Sint16 x, Sint16 y, Uint16 w, Uint16 h, Uint8 r, Uint8 g, Uint8 b, char * text,ShadedButton * button,BitFont * font);
 
 /*Boolean to tell if the given x,y are within the button's limits
 *	button: The button we're checking within

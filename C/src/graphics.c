@@ -73,6 +73,7 @@ int setupGraphicModule(int fd, GraphicModule * module){
 	}
    
     //Load the bitmap engine within the module
+    
     module->font = malloc(sizeof(BitFont*));
     if(setupBitFont(module->font) < 0){
         puts("Failed to create the bitmap engine");
@@ -231,7 +232,7 @@ int loadUI(GraphicModule * module){
         return -1;
     }
 
-    if(setupMenu(module->menu)){
+    if(setupMenu(module->menu,module->font)){
         puts("failed setting up menu");
         return -1;
     }

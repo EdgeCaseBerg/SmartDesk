@@ -18,6 +18,7 @@
 //local includes
 #include "conf.h"
 #include "button.h"
+#include "bitfont.h"
 
 
 //Menu and Button constants
@@ -68,12 +69,13 @@ typedef struct{
 	Uint8 r;
 	Uint8 g;
 	Uint8 b;
+	BitFont * font;
 } Menu;
 
 /*Creates all the buttons for the menu and orientes them on the screen
 *	menu: The Menu struct to configure
 */
-int setupMenu(Menu * menu);
+int setupMenu(Menu * menu, BitFont * font);
 
 /*Checks if the x coordinate is within the menu
 *	x: The x coordinate to compare within the menu
