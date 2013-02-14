@@ -23,59 +23,75 @@
 
 //Menu and Button constants
 //Define either right handed or left handed 
-#define RIGHT_HANDED
-#ifdef RIGHT_HANDED
-	#define MENU_X_START 0
-	#define MENU_X_END (SCREENWIDTH/5)
-	#define MENU_DIVIDER_X MENU_X_END
+#define MENU_ON_TOP
+#ifdef MENU_ON_TOP
+	#define MENU_Y_START 0
+	#define MENU_Y_END (SCREENHEIGHT/16) //based on 480/x = 30
+	#define MENU_DIVIDER_Y MENU_Y_END
 #else
 	// 1/5 of the screen will be the menu (unless that turns out to be too big)
-	#define MENU_X_START (4*(SCREENWIDTH/5))
-	#define MENU_X_END SCREENWIDTH
-	#define MENU_DIVIDER_X MENU_X_START
+	#define MENU_Y_START (SCREENHEIGHT - (SCREENHEIGHT/16))
+	#define MENU_Y_END SCREENHEIGHT
+	#define MENU_DIVIDER_Y MENU_Y_START
 #endif
+#define MENU_WIDTH (MENU_Y_END - MENU_Y_START)
 //Coloring of the menu's dividers and such
 #define MENU_LINE_R 0
 #define MENU_LINE_B 0
 #define MENU_LINE_G 0
 #define MENU_BACKCOLOR 0xD3D3D3
-#define DOCPANE_DIVIDER_Y_END (SCREENHEIGHT/4)
 #define MENU_DIVIDER_WIDTH 2
-#define MENU_WIDTH (MENU_X_END - MENU_X_START)
-#define BUTTON_WIDTH  (3*(MENU_WIDTH/4))
-#define BUTTON_HEIGHT 30
+#define BUTTON_WIDTH  (SCREENWIDTH/6)
+#define BUTTON_HEIGHT (3*(MENU_WIDTH/4))
 #define BUTTON_HORIZONTAL_OFFSET (MENU_WIDTH/8)
 #define BUTTON_VERTICAL_OFFSET (BUTTON_HEIGHT/4)
-//The scroll for the doc pane will be on the right if right handed, left otherwise
-#ifdef RIGHT_HANDED
-	#define DOC_SCROLL_X (MENU_X_END - BUTTON_HORIZONTAL_OFFSET)
-#else
-	#define DOC_SCROLL_X (MENU_X_START + BUTTON_HORIZONTAL_OFFSET)
-#endif
-#define NUMBER_OF_BUTTONS 3
+#define NUMBER_OF_BUTTONS 4
 #define EXIT_BUTTON_INDEX 0
-#define EXIT_BUTTON_LOCATION (SCREENHEIGHT - BUTTON_HEIGHT - BUTTON_VERTICAL_OFFSET)
-#define BRUSH_INCREASE_INDEX 1
-#define BRUSH_INCREASE_LOCATION (EXIT_BUTTON_LOCATION - BUTTON_HEIGHT - 2*BUTTON_VERTICAL_OFFSET)
-#define BRUSH_DECREASE_INDEX 2
-#define BRUSH_DECREASE_LOCATION BRUSH_INCREASE_LOCATION
+#define EXIT_BUTTON_LOCATION_X (SCREENWIDTH - BUTTON_WIDTH - BUTTON_HORIZONTAL_OFFSET )
+#define EXIT_BUTTON_LOCATION_Y (MENU_Y_START + BUTTON_VERTICAL_OFFSET)
+//The brush button, when clicked will pop out a increase and decrease popup menu
+#define BRUSH_BUTTON_INDEX 1
+#define BRUSH_BUTTON_LOCATION_X (EXIT_BUTTON_LOCATION_X - 2*BUTTON_WIDTH - 2*BUTTON_HORIZONTAL_OFFSET)
+//The brush buttons submenu will be defined a bit here relatively:
+#ifdef MENU_ON_TOP
+	#define BRUSH_BUTTON_LOCATION_Y (MENU_Y_START + BUTTON_VERTICAL_OFFSET)
+	#define BRUSH_SUBMENU_START MENU_Y_END
+	#define BRUSH_SUBMENU_END (MENU_Y_START +  (BUTTON_HEIGHT*1.5))
+	#define BRUSH_INCREASE_LOCATION_Y (BRUSH_SUBMENU_START + BUTTON_VERTICAL_OFFSET)
+	#define BRUSH_DECREASE_LOCATION_Y BRUSH_INCREASE_LOCATION_Y
+#else
+	#define BRUSH_BUTTON_LOCATION_Y (MENU_Y_END - BUTTON_VERTICAL_OFFSET - BUTTON_HEIGHT)
+	#define BRUSH_SUBMENU_START (MENU_Y_START - BUTTON_HEIGHT*1.5)
+	#define BRUSH_SUBMENU_END MENU_Y_START
+	#define BRUSH_INCREASE_LOCATION_Y (BRUSH_SUBMENU_START - BUTTON_HEIGHT - BUTTON_VERTICAL_OFFSET)
+	#define BRUSH_DECREASE_LOCATION_Y BRUSH_INCREASE_LOCATION_Y
+#endif
+#define BRUSH_INCREASE_INDEX 2
+#define BRUSH_INCREASE_LOCATION_X (BRUSH_BUTTON_LOCATION_X + BUTTON_HORIZONTAL_OFFSET)
+#define BRUSH_DECREASE_INDEX 3
+#define BRUSH_DECREASE_LOCATION_X (BRUSH_INCREASE_LOCATION_X + (BUTTON_WIDTH/3) + BUTTON_HORIZONTAL_OFFSET)
 
 
 
 typedef struct{
 	ShadedButton *buttons[NUMBER_OF_BUTTONS];
 	SDL_Rect * divider;
-	SDL_Rect * docDivide;
 	Uint8 r;
 	Uint8 g;
 	Uint8 b;
 	BitFont * font;
+	int subMenuActive;		//Boolean for if any of the menu's submenus are active
 } Menu;
 
 /*Creates all the buttons for the menu and orientes them on the screen
 *	menu: The Menu struct to configure
 */
 int setupMenu(Menu * menu, BitFont * font);
+
+/*
+*Free's the memory malloced by menu
+*/
+void freeMenu(Menu * menu);
 
 /*Checks if the x coordinate is within the menu
 *	x: The x coordinate to compare within the menu

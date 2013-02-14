@@ -90,13 +90,10 @@ void * createAndRunGraphics(void *memFD){
 		puts("Failed setting up GraphicModule");
 		return NULL;
 	}
-
-	puts("reading");
-	int test = *((int *)gm.memShareAddr+1);
-	printf("%d\n",test );
-
-	puts("running graphics");
+	
 	runGraphics(&gm);
+
+	freeGraphicModule(&gm);
 
 	return NULL;
 }

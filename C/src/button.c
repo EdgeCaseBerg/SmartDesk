@@ -16,7 +16,7 @@
 #include "bitfont.h"
 
 
-int setupShadedButton(Sint16 x, Sint16 y, Uint16 w, Uint16 h, Uint8 r, Uint8 g, Uint8 b, char * text,ShadedButton * button, BitFont * font){
+int setupShadedButton(Sint16 x, Sint16 y, Uint16 w, Uint16 h, Uint8 r, Uint8 g, Uint8 b, char * text,ShadedButton * button, BitFont * font, const int visible){
 	button->x = x;
 	button->y = y;
 	button->width = w;
@@ -26,10 +26,19 @@ int setupShadedButton(Sint16 x, Sint16 y, Uint16 w, Uint16 h, Uint8 r, Uint8 g, 
 	button->b = b;
 	button->clicked = 0;
 	button->hover = 0;
+	button->visible = visible;
 	button->text = malloc(sizeof(char)*strlen(text)+1);
 	button->font = font;
 	strcpy(button->text,text);
 	return 0;
+}
+
+
+void freeButton(ShadedButton * button){
+	//Free the text that was malloced
+	free(button->text);
+	//Note that this assumes the button's memory was malloced
+	free(button);
 }
 
 
@@ -43,7 +52,26 @@ int within(const ShadedButton * button, const int x, const int y){
 	return -1;
 }
 
+void hideButton(ShadedButton * button, SDL_Surface * screen){
+	SDL_Rect  backRect;
+	backRect.x = button->x      - BUTTONBACKGROUNDOFFSET;
+	backRect.y = button->y      - BUTTONBACKGROUNDOFFSET;
+	backRect.w = button->width  + 2*BUTTONBACKGROUNDOFFSET;
+	backRect.h = button->height + 2*BUTTONBACKGROUNDOFFSET;	
+
+	Uint32 btnBackColor = SDL_MapRGB( screen->format, 255, 255, 255);
+
+	SDL_FillRect(screen, &backRect, btnBackColor);
+
+	button->visible = 0;
+
+}
+
 void drawShadedButton(ShadedButton * button, SDL_Surface *screen){
+	if(button->visible != 1){
+		return;
+	}
+
 	//We don't need to lock the screen for blitting
 	SDL_Rect * backRect = malloc(sizeof(SDL_Rect));
 	if(backRect == NULL){
@@ -80,9 +108,13 @@ void drawShadedButton(ShadedButton * button, SDL_Surface *screen){
 	}else if(button->hover!=0){
 		btnForeColor = SDL_MapRGB( screen->format, button->r, button->g, button->b );
 		btnBackColor = SDL_MapRGB( screen->format, button->r*3+1 % 256, button->g*3+1 % 256, button->b*3+1%256 );
-	}else{
+	}else if(button->visible!=0){
 	    btnForeColor = SDL_MapRGB( screen->format, button->r, button->g, button->b );
 	    btnBackColor = SDL_MapRGB( screen->format, button->r*2+1 % 256, button->g*2+1 % 256, button->b*2+1%256 );
+	}else{
+		//The button must be rendered invisible (never called right now due to early return)
+		btnForeColor = SDL_MapRGB( screen->format, 255, 255, 255);
+	    btnBackColor = SDL_MapRGB( screen->format, 255, 255, 255);
 	}
 
     if(SDL_FillRect(screen, backRect, btnBackColor) <0 ){
@@ -92,7 +124,7 @@ void drawShadedButton(ShadedButton * button, SDL_Surface *screen){
     	perror("btnForeColor");
     }
 
-    SDL_BlitSurface(screen,&foreRect,screen,&foreRect);
+    free(backRect);
 
     //Text handling should go here since it should be drawn on top of the rest of the button
   	//Not implemented yet because I haven't decided how to handle fonts yet

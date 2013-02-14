@@ -9,12 +9,12 @@
 #include "bitfont.h"
 
 typedef struct{
-	void * memShareAddr;
-	int memShareFD;
-	SDL_Surface *screen;
-	Menu * menu;
-	BitFont * font;
-	int stopFlag;
+	void * memShareAddr;	//Pointer to shared memory between network and graphics
+	int memShareFD;			//File descriptor to shared memory between network and graphics
+	SDL_Surface *screen;	//The screen this module writes to
+	Menu * menu;			//The menu of the module
+	BitFont * font;			//Bitmap engine for font creation
+	int stopFlag;			//Whether the module should continue or not
 } GraphicModule;
 
 /*Set's a pixel on the screen at the x,y coordinates to the r g b value.
@@ -44,6 +44,11 @@ void handleGraphicEvent(SDL_Event event, GraphicModule * module);
 *	returns -1 on failure to set up the graphics module, 0 on success
 */
 int setupGraphicModule(int fd, GraphicModule * module);
+
+/*Free's the memory used by the graphic module
+*	module: The GraphicModule whose memory we're freeing
+*/
+void freeGraphicModule(GraphicModule * module);
 
 /*Handles all key presses
 *	event: The SDL_Event to handle
