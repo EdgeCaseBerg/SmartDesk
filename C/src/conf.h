@@ -23,6 +23,11 @@
 	#define CLICKBUFFERSIZE 500 
 	#define SMOOTHING 1
 
+	//Bitmap loader settings (The path is relative to where you run the program from)
+	//In other words, you must be sitting in the directory where this file is located
+	#define BITMAPFILE "tempascii.bmp"
+
+
 	
 
 

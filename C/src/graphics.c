@@ -26,7 +26,8 @@
 //Local includes
 #include "conf.h"
 #include "graphics.h"
-#include "button.h"
+#include "menu.h"
+#include "bitfont.h"
 
 //Global variables
 int mouseDown = 0;			           //True/False for if the mouse is 
@@ -34,6 +35,13 @@ int brushSize = 3;                     //Size of the brush
 int static buffered[CLICKBUFFERSIZE];  //Buffer to hold x,y coordinates to draw
 int static bufferPointer = 0;          //When to stop reading from the buffered
 
+//Frees memory used by GraphicModule
+void freeGraphicModule(GraphicModule * module){
+    //Bit Font engine
+    free(module->font);
+    freeMenu(module->menu);
+    free(module->menu);
+}
 
 //Returns -1 on failure, 0 on success, sets up the module
 int setupGraphicModule(int fd, GraphicModule * module){
@@ -71,12 +79,25 @@ int setupGraphicModule(int fd, GraphicModule * module){
 		return -1;
 	}
    
+    //Load the bitmap engine within the module
+    
+    module->font = malloc(sizeof(BitFont*));
+    if(setupBitFont(module->font) < 0){
+        puts("Failed to create the bitmap engine");
+        SDL_Quit();
+        return -1;
+    }
 
     if(loadUI(module) < 0){
         puts("Failed to load User Interface");
         SDL_Quit();
         return -1;
     }
+
+    //Set the stop flag
+    module->stopFlag = 0;
+
+    SDL_WM_SetCaption( "Smart Desk | Interactive Learning Software", NULL);
 
 	return 0;
 }
@@ -155,10 +176,8 @@ void drawUI(GraphicModule * module){
         }
     }
 
-    //Draw the bitmap for the outline of the ui
-
-    //Draw the buttons
-    drawShadedButton(module->exitButton,module->screen);
+    //Ask the menu to draw itself please
+    drawMenu(module->screen,module->menu);
 
     if(SDL_MUSTLOCK(module->screen)) SDL_UnlockSurface(module->screen);
   
@@ -174,18 +193,10 @@ void clearScreen(SDL_Surface* screen){
     }
 
     int x, y, ytimesw;
-  
-
-    for(y = 0; y < screen->h; y++ ) 
-    {
-    	//pitch is the scanline
-        ytimesw = y*screen->pitch/BITSPERPIXEL;
-        for( x = 0; x < screen->w; x++ ) 
-        {
-            setpixel(screen, x, ytimesw, 255, 255, 255);
-        }
-    }
-
+    
+    SDL_FillRect( screen, &screen->clip_rect, SDL_MapRGB( screen->format, 0xFF, 0xFF, 0xFF ) );
+    bufferPointer = 0;
+    
     if(SDL_MUSTLOCK(screen)) SDL_UnlockSurface(screen);
   
     SDL_Flip(screen); 
@@ -198,20 +209,19 @@ void runGraphics(GraphicModule * module){
     
     clearScreen(module->screen);
     
-    //Draw the UI
-    drawUI(module);
-
     //Main graphics event loop goes until an event causes keyquit != 0
-    while(keyQuit == 0){
-        
+    while(module->stopFlag == 0){
         //Loop until there are no more events to process
         while(SDL_PollEvent(&event)) {    
-        	handleGraphicEvent(event, module,&keyQuit);  
+        	handleGraphicEvent(event, module);  
 		}
         //Since smoothing is a preprocessor, if it's set to !1 then this call
         //should be optimized out by the compiler
         drawBuffered(module->screen);
+        drawUI(module);   
     }
+
+    SDL_FreeSurface(module->screen);
 
     SDL_Quit();
   
@@ -220,19 +230,17 @@ void runGraphics(GraphicModule * module){
 
 //-1 for fail 0 for good
 int loadUI(GraphicModule * module){
-    //Load the user interface (there will be a skin that sits on top of everything)
-    //then the buttons that we actually need to have interactions with will be drawn on top
-    //And all the other stuff will be loaded and crap.
-
-    //Load the bmp for the UI
+    module->menu = (Menu*)malloc(sizeof(Menu));
 
     //Load the bitmap font and make the proper sprites and such
 
-    //Create and draw the buttons
-    module->exitButton = malloc(sizeof(ShadedButton));
-        printf("%p\n", module->exitButton);
-    if(setupShadedButton(50, 50, 200, 200, 0, 140, 60, "poop",module->exitButton) < 0){
-        puts("Failed creating exit button");
+    if(module->menu == NULL){
+        puts("failed allocating memory for menu");
+        return -1;
+    }
+
+    if(setupMenu(module->menu,module->font)){
+        puts("failed setting up menu");
         return -1;
     }
 
@@ -240,35 +248,36 @@ int loadUI(GraphicModule * module){
 
 }
 
-void handleGraphicEvent(SDL_Event  event, GraphicModule * module, int * stopFlag){
+void handleGraphicEvent(SDL_Event  event, GraphicModule * module){
 	//Giant Case to handle all events
 	switch (event.type){
         case SDL_QUIT:
 	       	//Halt the execution of the graphics
-	       	*stopFlag = 1;
+	       	module->stopFlag = 1;
 	       	break;
 	    case SDL_KEYDOWN:
-	    	handleKeyEvent(event,stopFlag,module);
+	    	handleKeyEvent(event,module);
 	    	break;
 	    case SDL_MOUSEBUTTONDOWN:
 	    	mouseDown = 1;
-            handleMouseEvent(event);
+            handleMouseEvent(event,module);
 	    	break;
 	    case SDL_MOUSEBUTTONUP:
 	    	mouseDown = 0;
+            handleMouseEvent(event,module);
 	    	break;
 	    case SDL_MOUSEMOTION:
-	    	handleMouseEvent(event);
+	    	handleMouseEvent(event,module);
 	    	break;
         default:
             break;
 	}
 }
 
-void handleKeyEvent(SDL_Event  event, int *stopFlag, GraphicModule * module){
+void handleKeyEvent(SDL_Event  event, GraphicModule * module){
 	switch( event.key.keysym.sym ){
 		case SDLK_ESCAPE:
-	    	*stopFlag = 1;
+	    	module->stopFlag = 1;
 	    	break;
         case SDLK_F1:
             clearScreen(module->screen);
@@ -278,20 +287,81 @@ void handleKeyEvent(SDL_Event  event, int *stopFlag, GraphicModule * module){
 	}
 }
 
-void handleMouseEvent(SDL_Event event){
-    if(mouseDown){
-        if(event.motion.x < SCREENWIDTH && event.motion.y < SCREENHEIGHT){
-            buffered[bufferPointer] = event.motion.x;
-            buffered[bufferPointer+1] = event.motion.y;
-            //If smoothing is off this will be optimized out by the compiler
-            if(SMOOTHING==1){
-                smoothPath(event.motion.x,event.motion.y,event.motion.xrel,event.motion.yrel);
+void handleButtonClick(GraphicModule * module, int buttonID){
+    //Handle clicking buttons and the like
+    switch(buttonID){
+        case EXIT_BUTTON_INDEX:
+            module->stopFlag = 1;
+            break;
+        case BRUSH_BUTTON_INDEX:
+            if(module->menu->subMenuActive != 0){
+                module->menu->subMenuActive = 0;
+                hideButton(module->menu->buttons[BRUSH_INCREASE_INDEX],module->screen);
+                hideButton(module->menu->buttons[BRUSH_DECREASE_INDEX],module->screen);
+            }else{
+                //By assigning the button id, we can determine the
+                //proper sub menu to pop out
+                module->menu->subMenuActive = buttonID;    
+                module->menu->buttons[BRUSH_INCREASE_INDEX]->visible = 1;
+                module->menu->buttons[BRUSH_DECREASE_INDEX]->visible = 1;
             }
-            bufferPointer = bufferPointer+2;
-        }    
-        if(bufferPointer > CLICKBUFFERSIZE){
-            puts("aw shit ");//what a good error message for now
-            bufferPointer = 0;
+            break;
+        case BRUSH_INCREASE_INDEX:
+            brushSize++;
+            break;
+        case BRUSH_DECREASE_INDEX:
+            brushSize = brushSize < 0 ? 1 : brushSize-1;
+            break;
+        default:
+            break;
+    }
+
+}
+
+void handleMouseEvent(SDL_Event event, GraphicModule * module){
+    //Welcome to the bottleneck, we got fun and games
+    //If lagging is your issue, here you must change!
+    if(withinMenu(event.motion.y) != -1){
+        int button = checkButtons(module->menu, event.motion.x,event.motion.y);
+        if(button != -1){
+            if(mouseDown){
+                //Click
+                module->menu->buttons[button]->clicked = 1;
+                module->menu->buttons[button]->hover = 0;
+            }else{
+                //Hover or finished clicking
+                if(module->menu->buttons[button]->clicked == 1){
+                    //We just finished clicking and are about to change back to a hover state
+                    handleButtonClick(module, button);
+
+                }
+                module->menu->buttons[button]->clicked = 0;
+                module->menu->buttons[button]->hover = 1;
+            }
+        }else{
+            //Not in any buttons, make sure all of them are in their default state
+            int i;
+            for(i=0; i < NUMBER_OF_BUTTONS; i++){
+                module->menu->buttons[i]->clicked = 0;
+                module->menu->buttons[i]->hover = 0;
+            }
+        }
+    }else{
+        //Drawing mode. (Once we are loading documents some more stuff will have to go here)
+        if(mouseDown){
+            if(event.motion.x < SCREENWIDTH && event.motion.y < SCREENHEIGHT){
+                buffered[bufferPointer] = event.motion.x;
+                buffered[bufferPointer+1] = event.motion.y;
+                //If smoothing is off this will be optimized out by the compiler
+                if(SMOOTHING==1){
+                    smoothPath(event.motion.x,event.motion.y,event.motion.xrel,event.motion.yrel);
+                }
+                bufferPointer = bufferPointer+2;
+            }    
+            if(bufferPointer > CLICKBUFFERSIZE){
+                puts("aw shit ");//what a good error message for now
+                bufferPointer = 0;
+            }
         }
     }
 }

@@ -5,13 +5,16 @@
 #include <SDL.h>
 #include <SDL/SDL.h>
 
-#include "button.h"
+#include "menu.h"
+#include "bitfont.h"
 
 typedef struct{
-	void * memShareAddr;
-	int memShareFD;
-	SDL_Surface *screen;
-	ShadedButton * exitButton;
+	void * memShareAddr;	//Pointer to shared memory between network and graphics
+	int memShareFD;			//File descriptor to shared memory between network and graphics
+	SDL_Surface *screen;	//The screen this module writes to
+	Menu * menu;			//The menu of the module
+	BitFont * font;			//Bitmap engine for font creation
+	int stopFlag;			//Whether the module should continue or not
 } GraphicModule;
 
 /*Set's a pixel on the screen at the x,y coordinates to the r g b value.
@@ -32,7 +35,7 @@ void runGraphics(GraphicModule * module);
 *	eventType: An SDL event type
 *	module: GraphicModule currently in use
 */
-void handleGraphicEvent(SDL_Event event, GraphicModule * module, int * stopFlag);
+void handleGraphicEvent(SDL_Event event, GraphicModule * module);
 
 /*
 *Set's up the graphics module
@@ -42,16 +45,22 @@ void handleGraphicEvent(SDL_Event event, GraphicModule * module, int * stopFlag)
 */
 int setupGraphicModule(int fd, GraphicModule * module);
 
+/*Free's the memory used by the graphic module
+*	module: The GraphicModule whose memory we're freeing
+*/
+void freeGraphicModule(GraphicModule * module);
+
 /*Handles all key presses
 *	event: The SDL_Event to handle
-*	stopFlag: Sentinal value to stop the graphics
+*	module: Pointer to a GraphicModule where we are handling events
 */
-void handleKeyEvent(SDL_Event  event, int *stopFlag, GraphicModule * module);
+void handleKeyEvent(SDL_Event  event, GraphicModule * module);
 
 /*Handles all Mouse events
 *	event: The SDL_Event to handle
+*	module: GraphicModule currently in use
 */
-void handleMouseEvent(SDL_Event event);
+void handleMouseEvent(SDL_Event event, GraphicModule * module);
 
 /*Takes the current mouse coordinates and there relative position and smooths a line between
 *	x: X coordinate of current mouse position
