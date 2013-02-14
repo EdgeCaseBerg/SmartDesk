@@ -6,9 +6,13 @@
 *Defines the menu implementation. Dealing with buttons, drawing and where everything goes is handled here 
 */
 
+//System includes
+#include "stdlib.h" //for malloc
 
+//Local includes
 #include "menu.h"
 #include "button.h"
+#include "bitfont.h"
 #include "conf.h"
 
 //0 for win, -1 for fail
@@ -24,21 +28,11 @@ int setupMenu(Menu * menu, BitFont * font){
 		puts("memory not allocated for divider");
 		return -1;
 	}
-	menu->divider->x = MENU_DIVIDER_X;
-	menu->divider->y = 0;
-	menu->divider->w = MENU_DIVIDER_WIDTH;
-	menu->divider->h = SCREENHEIGHT;
-
-	//setup the divider between the doc pane and the rest of the menu
-	menu->docDivide = malloc(sizeof(SDL_Rect));
-	if(menu->docDivide == NULL){
-		puts("memory not allocated for doc divider");
-		return -1;
-	}
-	menu->docDivide->x = MENU_X_START;
-	menu->docDivide->y = DOCPANE_DIVIDER_Y_END;
-	menu->docDivide->w = MENU_WIDTH;
-	menu->docDivide->h = MENU_DIVIDER_WIDTH;
+	menu->divider->x = 0;
+	menu->divider->y = MENU_DIVIDER_Y;
+	menu->divider->w = SCREENWIDTH;
+	menu->divider->h = MENU_DIVIDER_WIDTH;
+	menu->subMenuActive = 0;
 	menu->font = font;
 
 	//Decide on the color:
@@ -48,20 +42,27 @@ int setupMenu(Menu * menu, BitFont * font){
 
 	//Exit button details
 	menu->buttons[EXIT_BUTTON_INDEX] = malloc(sizeof(ShadedButton));
-    if(setupShadedButton(MENU_X_START + BUTTON_HORIZONTAL_OFFSET, EXIT_BUTTON_LOCATION, BUTTON_WIDTH, BUTTON_HEIGHT, 60, 40, 40, "Exit",menu->buttons[EXIT_BUTTON_INDEX],font) < 0){
+    if(setupShadedButton(EXIT_BUTTON_LOCATION_X,EXIT_BUTTON_LOCATION_Y,  BUTTON_WIDTH, BUTTON_HEIGHT, 60, 40, 40, "Exit",menu->buttons[EXIT_BUTTON_INDEX],font,1) < 0){
         puts("Failed creating exit button");
         return -1;
     }
 
+    //Brush button
+    menu->buttons[BRUSH_BUTTON_INDEX] = malloc(sizeof(ShadedButton));
+    if(setupShadedButton(BRUSH_BUTTON_LOCATION_X,BRUSH_BUTTON_LOCATION_Y,BUTTON_WIDTH,BUTTON_HEIGHT,60,60,60,"Brush",menu->buttons[BRUSH_BUTTON_INDEX],font,1) < 0){
+    	puts("failed creating brush menu button");
+    	return -1;
+    }
+
     //Brush size button details
     menu->buttons[BRUSH_INCREASE_INDEX] = malloc(sizeof(ShadedButton));
-    if(setupShadedButton(MENU_X_START + BUTTON_HORIZONTAL_OFFSET, BRUSH_INCREASE_LOCATION,BUTTON_WIDTH/3,BUTTON_HEIGHT, 60,40,40,"Brush+",menu->buttons[BRUSH_INCREASE_INDEX],font) < 0){
+    if(setupShadedButton(BRUSH_INCREASE_LOCATION_X, BRUSH_INCREASE_LOCATION_Y,BUTTON_WIDTH/3,BUTTON_HEIGHT, 60,40,40,"Brush+",menu->buttons[BRUSH_INCREASE_INDEX],font,0) < 0){
     	puts("failed creating brush+ button");
     	return -1;
     }
 
     menu->buttons[BRUSH_DECREASE_INDEX] = malloc(sizeof(ShadedButton));
-    if(setupShadedButton(MENU_X_START + BUTTON_WIDTH/2 + 2*BUTTON_HORIZONTAL_OFFSET,BRUSH_DECREASE_LOCATION,BUTTON_WIDTH/3,BUTTON_HEIGHT,60,40,40,"Brush-",menu->buttons[BRUSH_DECREASE_INDEX],font) < 0){
+    if(setupShadedButton(BRUSH_DECREASE_LOCATION_X,BRUSH_DECREASE_LOCATION_Y,BUTTON_WIDTH/3,BUTTON_HEIGHT,60,40,40,"Brush-",menu->buttons[BRUSH_DECREASE_INDEX],font,0) < 0){
     	puts("failed creating brush- button");
     	return -1;
     }
@@ -69,13 +70,15 @@ int setupMenu(Menu * menu, BitFont * font){
 	return 0;
 }
 
-int withinMenu(const int x){
-	#ifdef RIGHT_HANDED
-		if(x < MENU_DIVIDER_X){
+int withinMenu(const int y){
+	//This function now must also include pop-up menus
+
+	#ifdef MENU_ON_TOP
+		if(y < MENU_Y_END){
 			return 0;
 		}
 	#else
-		if(x > MENU_DIVIDER_X){
+		if(y < MENU_Y_START){
 			return 0;
 		}
 	#endif
@@ -94,7 +97,7 @@ int checkButtons(const Menu * menu, const int x, const int y){
 
 void drawMenu(SDL_Surface *screen, Menu * menu){
 	//Draw the background color
-	SDL_Rect background = {MENU_X_START,0,MENU_WIDTH,SCREENHEIGHT};
+	SDL_Rect background = {0,MENU_Y_START,SCREENWIDTH,MENU_WIDTH};
 	Uint32 backColor = MENU_BACKCOLOR;
 	if(SDL_FillRect(screen, &background, backColor) < 0){
 		puts("failed to color menu background in");
@@ -110,19 +113,34 @@ void drawMenu(SDL_Surface *screen, Menu * menu){
 	}else{
 		SDL_BlitSurface(screen,menu->divider,screen,menu->divider);
 	}
-	//Draw the scroll area for the document selecting pane (docPane
-	if(SDL_FillRect(screen,menu->docDivide,divColor) < 0){
-		puts("failed on doc divider");
-	}else{
-		SDL_BlitSurface(screen,menu->docDivide,screen,menu->docDivide);
+
+	SDL_Rect submenu,submenuoutline;  
+	if(menu->subMenuActive != 0){
+		//Draw the appropriate submenu (check for the active state)
+		switch(menu->subMenuActive){
+			case BRUSH_BUTTON_INDEX:
+				//draw the submenu for brush				
+				submenu.x = BRUSH_BUTTON_LOCATION_X;
+				submenu.y = BRUSH_SUBMENU_START;
+				submenu.w = BUTTON_WIDTH;
+				submenu.h = (BRUSH_SUBMENU_END - BRUSH_SUBMENU_START + 2*BUTTON_HEIGHT);
+				submenuoutline.x = submenu.x - BUTTON_HORIZONTAL_OFFSET;
+				submenuoutline.y = submenu.y;
+				submenuoutline.w = BUTTON_WIDTH + BUTTON_HORIZONTAL_OFFSET*2;
+				submenuoutline.h = submenu.h + 2*BUTTON_VERTICAL_OFFSET;
+				
+				if(SDL_FillRect(screen,&submenu,backColor) <  0 && SDL_FillRect(screen,&submenuoutline,divColor) < 0){
+					puts("failed making submenu");
+				}else{
+					SDL_BlitSurface(screen,&submenuoutline,screen,&submenuoutline);
+					SDL_BlitSurface(screen,&submenu,screen,&submenu);
+				}
+				break;
+			default:
+				break;
+		}
 	}
 
-	SDL_Rect docScrollLeft = {DOC_SCROLL_X, 0, MENU_DIVIDER_WIDTH, DOCPANE_DIVIDER_Y_END};
-	if(SDL_FillRect(screen,&docScrollLeft,divColor) < 0 ){
-		puts("failed on doc pane scroll side");
-	}else{
-		SDL_BlitSurface(screen,&docScrollLeft,screen,&docScrollLeft);
-	}
 
 
 	//Draw all the buttons

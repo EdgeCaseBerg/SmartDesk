@@ -223,7 +223,7 @@ void runGraphics(GraphicModule * module){
 
 //-1 for fail 0 for good
 int loadUI(GraphicModule * module){
-    module->menu = malloc(sizeof(Menu));
+    module->menu = (Menu*)malloc(sizeof(Menu));
 
     //Load the bitmap font and make the proper sprites and such
 
@@ -286,6 +286,19 @@ void handleButtonClick(GraphicModule * module, int buttonID){
         case EXIT_BUTTON_INDEX:
             module->stopFlag = 1;
             break;
+        case BRUSH_BUTTON_INDEX:
+            if(module->menu->subMenuActive != 0){
+                module->menu->subMenuActive = 0;
+                module->menu->buttons[BRUSH_INCREASE_INDEX]->visible = 0;
+                module->menu->buttons[BRUSH_DECREASE_INDEX]->visible = 0;
+            }else{
+                //By assigning the button id, we can determine the
+                //proper sub menu to pop out
+                module->menu->subMenuActive = buttonID;    
+                module->menu->buttons[BRUSH_INCREASE_INDEX]->visible = 1;
+                module->menu->buttons[BRUSH_DECREASE_INDEX]->visible = 1;
+            }
+            break;
         case BRUSH_INCREASE_INDEX:
             brushSize++;
             break;
@@ -301,7 +314,7 @@ void handleButtonClick(GraphicModule * module, int buttonID){
 void handleMouseEvent(SDL_Event event, GraphicModule * module){
     //Welcome to the bottleneck, we got fun and games
     //If lagging is your issue, here you must change!
-    if(withinMenu(event.motion.x) != -1){
+    if(withinMenu(event.motion.y) != -1){
         int button = checkButtons(module->menu, event.motion.x,event.motion.y);
         if(button != -1){
             if(mouseDown){

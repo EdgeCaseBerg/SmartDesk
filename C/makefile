@@ -14,14 +14,14 @@ bin/network.o: src/conf.h src/network.h src/network.c
 bin/graphics.o: src/graphics.c src/graphics.h src/conf.h bin/menu.o bin/bitfont.o bin/button.o
 	$(CC) -c src/graphics.c `sdl-config --cflags` -lm -o bin/graphics.o 
 
-bin/button.o: src/button.c src/button.h src/bitfont.h
+bin/button.o: src/button.c src/button.h bin/bitfont.o
 	$(CC) -c src/button.c `sdl-config --cflags` -o bin/button.o
 
-bin/menu.o: src/menu.c src/menu.h src/button.h src/bitfont.h
-	$(CC) -c src/menu.c `sdl-config --cflags` -g -o bin/menu.o
+bin/menu.o: src/menu.c src/menu.h bin/button.o bin/bitfont.o
+	$(CC) -c src/menu.c `sdl-config --cflags` -o bin/menu.o
 
 bin/bitfont.o: src/bitfont.c src/bitfont.h
-	$(CC) -c src/bitfont.c `sdl-config --cflags` -g -o bin/bitfont.o
+	$(CC) -c src/bitfont.c `sdl-config --cflags`  -o bin/bitfont.o
 
 clean:
 	rm -rf ./bin/*
@@ -39,10 +39,10 @@ bin/networkd.o: src/conf.h src/network.h src/network.c
 bin/graphicsd.o: src/graphics.c src/graphics.h src/conf.h  bin/menud.o bin/bitfontd.o bin/buttond.o
 	$(CC) -c src/graphics.c -g `sdl-config --cflags` -lm -o bin/graphicsd.o 
 
-bin/buttond.o: src/button.c src/button.h src/bitfont.h
+bin/buttond.o: src/button.c src/button.h bin/bitfontd.o
 	$(CC) -c src/button.c `sdl-config --cflags` -g -o bin/buttond.o
 
-bin/menud.o: src/menu.c src/menu.h src/bitfont.h
+bin/menud.o: src/menu.c src/menu.h bin/bitfontd.o bin/buttond.o
 	$(CC) -c src/menu.c `sdl-config --cflags` -g -o bin/menud.o
 
 bin/bitfontd.o: src/bitfont.c src/bitfont.h

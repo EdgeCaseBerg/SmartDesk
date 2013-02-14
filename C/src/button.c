@@ -16,7 +16,7 @@
 #include "bitfont.h"
 
 
-int setupShadedButton(Sint16 x, Sint16 y, Uint16 w, Uint16 h, Uint8 r, Uint8 g, Uint8 b, char * text,ShadedButton * button, BitFont * font){
+int setupShadedButton(Sint16 x, Sint16 y, Uint16 w, Uint16 h, Uint8 r, Uint8 g, Uint8 b, char * text,ShadedButton * button, BitFont * font, const int visible){
 	button->x = x;
 	button->y = y;
 	button->width = w;
@@ -26,6 +26,7 @@ int setupShadedButton(Sint16 x, Sint16 y, Uint16 w, Uint16 h, Uint8 r, Uint8 g, 
 	button->b = b;
 	button->clicked = 0;
 	button->hover = 0;
+	button->visible = visible;
 	button->text = malloc(sizeof(char)*strlen(text)+1);
 	button->font = font;
 	strcpy(button->text,text);
@@ -44,6 +45,10 @@ int within(const ShadedButton * button, const int x, const int y){
 }
 
 void drawShadedButton(ShadedButton * button, SDL_Surface *screen){
+	if(button->visible != 1){
+		return;
+	}
+
 	//We don't need to lock the screen for blitting
 	SDL_Rect * backRect = malloc(sizeof(SDL_Rect));
 	if(backRect == NULL){
