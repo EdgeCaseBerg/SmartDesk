@@ -62,5 +62,8 @@ idea for program flow for a desk:
 	Holds defitions of the desk structure and operation that would affect it as a whole
 
 -graphics
-	Basic functionality for graphics and drawing
+	Basic functionality for graphics and drawing, submenus
+
+-compression
+  Cut off 16 bit integers of (x,y) pairs to 11 bits and send more at a time
 
