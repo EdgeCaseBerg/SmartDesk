@@ -88,6 +88,11 @@ typedef struct{
 */
 int setupMenu(Menu * menu, BitFont * font);
 
+/*
+*Free's the memory malloced by menu
+*/
+void freeMenu(Menu * menu);
+
 /*Checks if the x coordinate is within the menu
 *	x: The x coordinate to compare within the menu
 *	returns -1 if false, 0 if true

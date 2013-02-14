@@ -34,6 +34,14 @@ int setupShadedButton(Sint16 x, Sint16 y, Uint16 w, Uint16 h, Uint8 r, Uint8 g, 
 }
 
 
+void freeButton(ShadedButton * button){
+	//Free the text that was malloced
+	free(button->text);
+	//Note that this assumes the button's memory was malloced
+	free(button);
+}
+
+
 int within(const ShadedButton * button, const int x, const int y){
 	if(button == NULL){
 		return -1;
@@ -97,6 +105,7 @@ void drawShadedButton(ShadedButton * button, SDL_Surface *screen){
     	perror("btnForeColor");
     }
 
+    SDL_BlitSurface(screen,backRect,screen,backRect);
     SDL_BlitSurface(screen,&foreRect,screen,&foreRect);
 
     //Text handling should go here since it should be drawn on top of the rest of the button

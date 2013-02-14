@@ -35,6 +35,13 @@ int brushSize = 3;                     //Size of the brush
 int static buffered[CLICKBUFFERSIZE];  //Buffer to hold x,y coordinates to draw
 int static bufferPointer = 0;          //When to stop reading from the buffered
 
+//Frees memory used by GraphicModule
+void freeGraphicModule(GraphicModule * module){
+    //Bit Font engine
+    free(module->font);
+    freeMenu(module->menu);
+    free(module->menu);
+}
 
 //Returns -1 on failure, 0 on success, sets up the module
 int setupGraphicModule(int fd, GraphicModule * module){

@@ -35,6 +35,11 @@ typedef struct{
 */
 int setupShadedButton(Sint16 x, Sint16 y, Uint16 w, Uint16 h, Uint8 r, Uint8 g, Uint8 b, char * text,ShadedButton * button,BitFont * font, const int visible);
 
+/*Free's the memory used by the button
+*	button: The button whose memory will be free-ed
+*/
+void freeButton(ShadedButton * button);
+
 /*Boolean to tell if the given x,y are within the button's limits
 *	button: The button we're checking within
 *	x: The x coordinate to check

@@ -67,7 +67,19 @@ int setupMenu(Menu * menu, BitFont * font){
     	return -1;
     }
 
+
 	return 0;
+}
+
+void freeMenu(Menu * menu){
+	//Divider
+	free(menu->divider);
+
+	//Free the buttons
+	int i;
+	for(i=0; i < NUMBER_OF_BUTTONS; i++){
+		freeButton(menu->buttons[i]);
+	}
 }
 
 int withinMenu(const int y){
@@ -101,39 +113,42 @@ void drawMenu(SDL_Surface *screen, Menu * menu){
 	Uint32 backColor = MENU_BACKCOLOR;
 	if(SDL_FillRect(screen, &background, backColor) < 0){
 		puts("failed to color menu background in");
-	}else{
-		SDL_BlitSurface(screen,&background,screen,&background);	
 	}
-	
 
 	//Draw the lining of the interface
 	Uint32 divColor = SDL_MapRGB( screen->format, menu->r, menu->g, menu->b );
 	if(SDL_FillRect(screen, menu->divider, divColor) < 0){
 		puts("failed on the menu divider");
-	}else{
-		SDL_BlitSurface(screen,menu->divider,screen,menu->divider);
 	}
+
 
 	SDL_Rect submenu,submenuoutline;  
 	if(menu->subMenuActive != 0){
 		//Draw the appropriate submenu (check for the active state)
 		switch(menu->subMenuActive){
 			case BRUSH_BUTTON_INDEX:
-				//draw the submenu for brush				
+				//draw the submenu for brush		
 				submenu.x = BRUSH_BUTTON_LOCATION_X;
 				submenu.y = BRUSH_SUBMENU_START;
 				submenu.w = BUTTON_WIDTH;
 				submenu.h = (BRUSH_SUBMENU_END - BRUSH_SUBMENU_START + 2*BUTTON_HEIGHT);
-				submenuoutline.x = submenu.x - BUTTON_HORIZONTAL_OFFSET;
+				submenuoutline.x = submenu.x - BUTTONBACKGROUNDOFFSET;
 				submenuoutline.y = submenu.y;
-				submenuoutline.w = BUTTON_WIDTH + BUTTON_HORIZONTAL_OFFSET*2;
-				submenuoutline.h = submenu.h + 2*BUTTON_VERTICAL_OFFSET;
-				
-				if(SDL_FillRect(screen,&submenu,backColor) <  0 && SDL_FillRect(screen,&submenuoutline,divColor) < 0){
+				submenuoutline.w = BUTTON_WIDTH + BUTTONBACKGROUNDOFFSET*2;
+				submenuoutline.h = submenu.h + BUTTON_VERTICAL_OFFSET;
+				if(menu->buttons[BRUSH_BUTTON_INDEX]->clicked != 0){
+					//This will clear it, but we'll lose the pixels underneath if they drew
+					//There must be a way to do this... (maybe copy the old pixels to something?)
+					divColor = 0xFFFFFF;
+					backColor = 0xFFFFFF;
+					menu->buttons[BRUSH_INCREASE_INDEX]->visible = 1;
+                	menu->buttons[BRUSH_DECREASE_INDEX]->visible = 1;
+				}
+				if(SDL_FillRect(screen,&submenuoutline,divColor) < 0 ){
 					puts("failed making submenu");
-				}else{
-					SDL_BlitSurface(screen,&submenuoutline,screen,&submenuoutline);
-					SDL_BlitSurface(screen,&submenu,screen,&submenu);
+					}
+				if(SDL_FillRect(screen,&submenu,backColor) <  0 ){
+					puts("failed making submenu backcolor");
 				}
 				break;
 			default:

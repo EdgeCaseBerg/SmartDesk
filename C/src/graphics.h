@@ -45,6 +45,11 @@ void handleGraphicEvent(SDL_Event event, GraphicModule * module);
 */
 int setupGraphicModule(int fd, GraphicModule * module);
 
+/*Free's the memory used by the graphic module
+*	module: The GraphicModule whose memory we're freeing
+*/
+void freeGraphicModule(GraphicModule * module);
+
 /*Handles all key presses
 *	event: The SDL_Event to handle
 *	module: Pointer to a GraphicModule where we are handling events
