@@ -51,7 +51,7 @@
 #define EXIT_BUTTON_LOCATION_Y (MENU_Y_START + BUTTON_VERTICAL_OFFSET)
 //The brush button, when clicked will pop out a increase and decrease popup menu
 #define BRUSH_BUTTON_INDEX 1
-#define BRUSH_BUTTON_LOCATION_X (EXIT_BUTTON_LOCATION_X - 2*BUTTON_WIDTH - 2*BUTTON_HORIZONTAL_OFFSET)
+#define BRUSH_BUTTON_LOCATION_X BUTTONBACKGROUNDOFFSET //(EXIT_BUTTON_LOCATION_X - 2*BUTTON_WIDTH - 2*BUTTON_HORIZONTAL_OFFSET)
 //The brush buttons submenu will be defined a bit here relatively:
 #ifdef MENU_ON_TOP
 	#define BRUSH_BUTTON_LOCATION_Y (MENU_Y_START + BUTTON_VERTICAL_OFFSET)
@@ -97,7 +97,7 @@ void freeMenu(Menu * menu);
 *	x: The x coordinate to compare within the menu
 *	returns -1 if false, 0 if true
 */
-int withinMenu(const int x);
+int withinMenu(Menu * menu, const int x, const int y);
 
 /*Checks to see if the given (x,y) pair is within any buttons. 
 *	menu: The Menu struct to check within
