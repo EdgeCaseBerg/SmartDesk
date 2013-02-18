@@ -97,7 +97,7 @@ void freeMenu(Menu * menu);
 *	x: The x coordinate to compare within the menu
 *	returns -1 if false, 0 if true
 */
-int withinMenu(const int x);
+int withinMenu(Menu * menu, const int x, const int y);
 
 /*Checks to see if the given (x,y) pair is within any buttons. 
 *	menu: The Menu struct to check within

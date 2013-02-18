@@ -321,7 +321,7 @@ void handleButtonClick(GraphicModule * module, int buttonID){
 void handleMouseEvent(SDL_Event event, GraphicModule * module){
     //Welcome to the bottleneck, we got fun and games
     //If lagging is your issue, here you must change!
-    if(withinMenu(event.motion.y) != -1){
+    if(withinMenu(module->menu,event.motion.x, event.motion.y) != -1){
         int button = checkButtons(module->menu, event.motion.x,event.motion.y);
         if(button != -1){
             if(mouseDown){

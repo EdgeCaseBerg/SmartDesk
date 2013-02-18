@@ -82,9 +82,15 @@ void freeMenu(Menu * menu){
 	}
 }
 
-int withinMenu(const int y){
+int withinMenu(Menu * menu, const int x, const int y){
 	//This function now must also include pop-up menus
-
+	if(menu->subMenuActive != 0){
+		if((BRUSH_BUTTON_LOCATION_X - BUTTONBACKGROUNDOFFSET) < x  && x < (BRUSH_BUTTON_LOCATION_X - BUTTONBACKGROUNDOFFSET + BUTTON_WIDTH + BUTTONBACKGROUNDOFFSET*2)){
+			if(BRUSH_SUBMENU_START < y  && y < BRUSH_SUBMENU_START + (BRUSH_SUBMENU_END - BRUSH_SUBMENU_START + 2*BUTTON_HEIGHT)+ BUTTON_VERTICAL_OFFSET ){
+				return 0;
+			}
+		}
+	}
 	#ifdef MENU_ON_TOP
 		if(y < MENU_Y_END){
 			return 0;
