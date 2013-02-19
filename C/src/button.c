@@ -15,12 +15,21 @@
 #include "button.h"
 #include "bitfont.h"
 
+//Found on a forum http://www.cplusplus.com/forum/general/9063/ Thank you Disch.
+SDL_Surface* createSurface(Uint32 flags,int width,int height,const SDL_Surface* display){
+  // 'display' is the surface whose format you want to match
+  const SDL_PixelFormat fmt = *(display->format);
+  return SDL_CreateRGBSurface(flags,width,height,
+                  fmt.BitsPerPixel,
+                  fmt.Rmask,fmt.Gmask,fmt.Bmask,fmt.Amask );
+}
 
-int setupShadedButton(Sint16 x, Sint16 y, Uint16 w, Uint16 h, Uint8 r, Uint8 g, Uint8 b, char * text,ShadedButton * button, BitFont * font, const int visible){
+
+int setupShadedButton(Sint16 x, Sint16 y, Uint16 w, Uint16 h, Uint8 r, Uint8 g, Uint8 b, char * text,ShadedButton * button, BitFont * font, const int visible, const SDL_Surface * display ){
 	button->x = x;
 	button->y = y;
-	button->width = w;
-	button->height = h;
+	button->width = w + 2*BUTTONBACKGROUNDOFFSET;
+	button->height = h + 2*BUTTONBACKGROUNDOFFSET;
 	button->r = r;
 	button->g = g;
 	button->b = b;
@@ -29,6 +38,7 @@ int setupShadedButton(Sint16 x, Sint16 y, Uint16 w, Uint16 h, Uint8 r, Uint8 g, 
 	button->visible = visible;
 	button->text = malloc(sizeof(char)*strlen(text)+1);
 	button->font = font;
+	button->surface = createSurface(SDL_SWSURFACE, button->width,button->height,display);
 	strcpy(button->text,text);
 	return 0;
 }
@@ -36,6 +46,7 @@ int setupShadedButton(Sint16 x, Sint16 y, Uint16 w, Uint16 h, Uint8 r, Uint8 g, 
 
 void freeButton(ShadedButton * button){
 	//Free the text that was malloced
+	SDL_FreeSurface(button->surface);
 	free(button->text);
 	//Note that this assumes the button's memory was malloced
 	free(button);
@@ -86,15 +97,15 @@ void drawShadedButton(ShadedButton * button, SDL_Surface *screen){
 	SDL_Rect foreRect;
 	if(button->clicked==1){
 		//Shift the 'top' part of the button down when we click it
-		foreRect.x = button->x;
-		foreRect.y = button->y      - BUTTONBACKGROUNDOFFSET/2;
+		foreRect.x = BUTTONBACKGROUNDOFFSET ;
+		foreRect.y = BUTTONBACKGROUNDOFFSET/2;
 		foreRect.w = button->width;
 		foreRect.h = button->height + BUTTONBACKGROUNDOFFSET/2;
 	}else{ //Yes we could do a foreRect = {}... but if someone changes SDL's struct order thats screwed
-		foreRect.x = button->x;
-		foreRect.y = button->y;
-		foreRect.w = button->width;
-		foreRect.h = button->height;
+		foreRect.x = BUTTONBACKGROUNDOFFSET;
+		foreRect.y = BUTTONBACKGROUNDOFFSET;
+		foreRect.w = button->width - 2*BUTTONBACKGROUNDOFFSET;
+		foreRect.h = button->height - 2*BUTTONBACKGROUNDOFFSET;
 	}
 	
 	//Both the foreground and the shadow of the button
@@ -117,12 +128,14 @@ void drawShadedButton(ShadedButton * button, SDL_Surface *screen){
 	    btnBackColor = SDL_MapRGB( screen->format, 255, 255, 255);
 	}
 
-    if(SDL_FillRect(screen, backRect, btnBackColor) <0 ){
+    if(SDL_FillRect(button->surface, NULL, btnBackColor) <0 ){
     	perror("btnBackColor");
     }
-    if(SDL_FillRect(screen, &foreRect, btnForeColor) <0 ){
+    if(SDL_FillRect(button->surface, &foreRect, btnForeColor) <0 ){
     	perror("btnForeColor");
     }
+
+    SDL_BlitSurface(button->surface, NULL, screen, backRect );
 
     free(backRect);
 

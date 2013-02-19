@@ -78,6 +78,14 @@ int setupGraphicModule(int fd, GraphicModule * module){
 		SDL_Quit();
 		return -1;
 	}
+
+    //Create the drawing and document surfaces 
+    module->drawing = createSurface(SDL_SWSURFACE, SCREENWIDTH,SCREENHEIGHT,module->screen);
+    if(module->drawing == NULL){
+        puts("failed to create drawing surface");
+        SDL_Quit();
+        return -1;
+    }
    
     //Load the bitmap engine within the module
     
@@ -208,6 +216,7 @@ void runGraphics(GraphicModule * module){
     int keyQuit = 0;
     
     clearScreen(module->screen);
+    clearScreen(module->drawing);
     
     //Main graphics event loop goes until an event causes keyquit != 0
     while(module->stopFlag == 0){
@@ -217,7 +226,9 @@ void runGraphics(GraphicModule * module){
 		}
         //Since smoothing is a preprocessor, if it's set to !1 then this call
         //should be optimized out by the compiler
-        drawBuffered(module->screen);
+        drawBuffered(module->drawing);
+        //Move the drawn bits onto the screen
+        SDL_BlitSurface(module->drawing,NULL,module->screen,NULL);
         drawUI(module);   
     }
 
@@ -239,7 +250,7 @@ int loadUI(GraphicModule * module){
         return -1;
     }
 
-    if(setupMenu(module->menu,module->font)){
+    if(setupMenu(module->menu,module->font,module->screen)){
         puts("failed setting up menu");
         return -1;
     }
@@ -281,6 +292,7 @@ void handleKeyEvent(SDL_Event  event, GraphicModule * module){
 	    	break;
         case SDLK_F1:
             clearScreen(module->screen);
+            clearScreen(module->drawing);
             break;
         default:
             break;
@@ -321,7 +333,7 @@ void handleButtonClick(GraphicModule * module, int buttonID){
 void handleMouseEvent(SDL_Event event, GraphicModule * module){
     //Welcome to the bottleneck, we got fun and games
     //If lagging is your issue, here you must change!
-    if(withinMenu(event.motion.y) != -1){
+    if(withinMenu(module->menu,event.motion.x, event.motion.y) != -1){
         int button = checkButtons(module->menu, event.motion.x,event.motion.y);
         if(button != -1){
             if(mouseDown){
