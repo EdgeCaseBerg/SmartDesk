@@ -20,9 +20,15 @@
 	#define SCREENHEIGHT 480
 	#define SCREENDEPTH 32
 	#define BITSPERPIXEL 4
-	#define CLICKBUFFERSIZE 50 //it hardly ever use's 2, 50 is plenty
+	#define CLICKBUFFERSIZE 500 
 	#define SMOOTHING 1
-	#define SMOOTHINGSTEPS 3
+
+	//Bitmap loader settings (The path is relative to where you run the program from)
+	//In other words, you must be sitting in the directory where this file is located
+	#define BITMAPFILE "tempascii.bmp"
+
+
+	
 
 
 

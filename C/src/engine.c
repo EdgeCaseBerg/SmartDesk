@@ -72,7 +72,7 @@ void * createAndRunNetwork(void *memFD){
 		return NULL;
 	}
 
-	runServer(&nm);
+	//runServer(&nm);
 	
 	return NULL;
 }
@@ -90,13 +90,10 @@ void * createAndRunGraphics(void *memFD){
 		puts("Failed setting up GraphicModule");
 		return NULL;
 	}
-
-	puts("reading");
-	int test = *((int *)gm.memShareAddr+1);
-	printf("%d\n",test );
-
-	puts("running graphics");
+	
 	runGraphics(&gm);
+
+	freeGraphicModule(&gm);
 
 	return NULL;
 }
@@ -123,8 +120,8 @@ int main(int argc, char const *argv[])
     close(memS);
 
     //This is commented out while I manipulate the mapped file to get a feel.
-	//if(unlink(MEMSHARENAME) < 0){
-	//	puts("Issue removing memory share for engine");
-	//}
+	if(unlink(MEMSHARENAME) < 0){
+		puts("Issue removing memory share for engine");
+	}
 	return 0;
 }
