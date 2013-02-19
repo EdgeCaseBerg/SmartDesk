@@ -20,6 +20,15 @@ typedef struct{
 	SDL_Surface *surface;
 } ShadedButton;
 
+/*
+*Creates a display using the same settings as the passed in display
+*	flags: SDL surface flags (hardware or software surface and the life)
+*	width: The width of the surface
+*	height: The height of the surface
+*	display: The display that this surface will probably be rendered on.
+*	returns SDL_Surface pointer to the created surface
+*/
+SDL_Surface* createSurface(Uint32 flags,int width,int height,const SDL_Surface* display);
 
 /*Creates and allocates a button object with the specified parameters
 *

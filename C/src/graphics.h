@@ -12,6 +12,8 @@ typedef struct{
 	void * memShareAddr;	//Pointer to shared memory between network and graphics
 	int memShareFD;			//File descriptor to shared memory between network and graphics
 	SDL_Surface *screen;	//The screen this module writes to
+	SDL_Surface *drawing;	//Surface to drawing on
+	SDL_Surface *document; 	//Surface to display the current documents on
 	Menu * menu;			//The menu of the module
 	BitFont * font;			//Bitmap engine for font creation
 	int stopFlag;			//Whether the module should continue or not
