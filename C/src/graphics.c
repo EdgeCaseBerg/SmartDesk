@@ -292,6 +292,7 @@ void handleKeyEvent(SDL_Event  event, GraphicModule * module){
 	    	break;
         case SDLK_F1:
             clearScreen(module->screen);
+            clearScreen(module->drawing);
             break;
         default:
             break;
