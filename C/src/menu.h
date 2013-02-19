@@ -86,7 +86,7 @@ typedef struct{
 /*Creates all the buttons for the menu and orientes them on the screen
 *	menu: The Menu struct to configure
 */
-int setupMenu(Menu * menu, BitFont * font);
+int setupMenu(Menu * menu, BitFont * font, const SDL_Surface * display);
 
 /*
 *Free's the memory malloced by menu

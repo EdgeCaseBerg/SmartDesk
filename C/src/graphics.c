@@ -239,7 +239,7 @@ int loadUI(GraphicModule * module){
         return -1;
     }
 
-    if(setupMenu(module->menu,module->font)){
+    if(setupMenu(module->menu,module->font,module->screen)){
         puts("failed setting up menu");
         return -1;
     }

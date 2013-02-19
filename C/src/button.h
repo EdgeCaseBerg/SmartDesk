@@ -17,6 +17,7 @@ typedef struct{
 	int visible; //Boolean for if the button is being displayed or not
 	char * text; //Text to be placed in the button (Haven't figured out best way to do this)
 	BitFont * font;
+	SDL_Surface *surface;
 } ShadedButton;
 
 
@@ -31,9 +32,10 @@ typedef struct{
 *	b: The blue value of the color of the button
 *	text: The string to be displayed in the button
 *	button: A reference to the button variable you are filling out
+*	display: The display to copy the settings from onto the surface for fast blitting
 *	returns -1 if the button is not created correctly
 */
-int setupShadedButton(Sint16 x, Sint16 y, Uint16 w, Uint16 h, Uint8 r, Uint8 g, Uint8 b, char * text,ShadedButton * button,BitFont * font, const int visible);
+int setupShadedButton(Sint16 x, Sint16 y, Uint16 w, Uint16 h, Uint8 r, Uint8 g, Uint8 b, char * text,ShadedButton * button,BitFont * font, const int visible, const SDL_Surface * display);
 
 /*Free's the memory used by the button
 *	button: The button whose memory will be free-ed

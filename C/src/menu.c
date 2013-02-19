@@ -16,7 +16,7 @@
 #include "conf.h"
 
 //0 for win, -1 for fail
-int setupMenu(Menu * menu, BitFont * font){
+int setupMenu(Menu * menu, BitFont * font, const SDL_Surface * display){
 	if(menu == NULL){
 		puts( "Menu pointer is null");
 		return -1;
@@ -42,27 +42,27 @@ int setupMenu(Menu * menu, BitFont * font){
 
 	//Exit button details
 	menu->buttons[EXIT_BUTTON_INDEX] = malloc(sizeof(ShadedButton));
-    if(setupShadedButton(EXIT_BUTTON_LOCATION_X,EXIT_BUTTON_LOCATION_Y,  BUTTON_WIDTH, BUTTON_HEIGHT, 60, 40, 40, "Exit",menu->buttons[EXIT_BUTTON_INDEX],font,1) < 0){
+    if(setupShadedButton(EXIT_BUTTON_LOCATION_X,EXIT_BUTTON_LOCATION_Y,  BUTTON_WIDTH, BUTTON_HEIGHT, 60, 40, 40, "Exit",menu->buttons[EXIT_BUTTON_INDEX],font,1,display) < 0){
         puts("Failed creating exit button");
         return -1;
     }
 
     //Brush button
     menu->buttons[BRUSH_BUTTON_INDEX] = malloc(sizeof(ShadedButton));
-    if(setupShadedButton(BRUSH_BUTTON_LOCATION_X,BRUSH_BUTTON_LOCATION_Y,BUTTON_WIDTH,BUTTON_HEIGHT,60,60,60,"Brush",menu->buttons[BRUSH_BUTTON_INDEX],font,1) < 0){
+    if(setupShadedButton(BRUSH_BUTTON_LOCATION_X,BRUSH_BUTTON_LOCATION_Y,BUTTON_WIDTH,BUTTON_HEIGHT,60,60,60,"Brush",menu->buttons[BRUSH_BUTTON_INDEX],font,1,display) < 0){
     	puts("failed creating brush menu button");
     	return -1;
     }
 
     //Brush size button details
     menu->buttons[BRUSH_INCREASE_INDEX] = malloc(sizeof(ShadedButton));
-    if(setupShadedButton(BRUSH_INCREASE_LOCATION_X, BRUSH_INCREASE_LOCATION_Y,BUTTON_WIDTH/3,BUTTON_HEIGHT, 60,40,40,"Brush+",menu->buttons[BRUSH_INCREASE_INDEX],font,0) < 0){
+    if(setupShadedButton(BRUSH_INCREASE_LOCATION_X, BRUSH_INCREASE_LOCATION_Y,BUTTON_WIDTH/3,BUTTON_HEIGHT, 60,40,40,"Brush+",menu->buttons[BRUSH_INCREASE_INDEX],font,0,display) < 0){
     	puts("failed creating brush+ button");
     	return -1;
     }
 
     menu->buttons[BRUSH_DECREASE_INDEX] = malloc(sizeof(ShadedButton));
-    if(setupShadedButton(BRUSH_DECREASE_LOCATION_X,BRUSH_DECREASE_LOCATION_Y,BUTTON_WIDTH/3,BUTTON_HEIGHT,60,40,40,"Brush-",menu->buttons[BRUSH_DECREASE_INDEX],font,0) < 0){
+    if(setupShadedButton(BRUSH_DECREASE_LOCATION_X,BRUSH_DECREASE_LOCATION_Y,BUTTON_WIDTH/3,BUTTON_HEIGHT,60,40,40,"Brush-",menu->buttons[BRUSH_DECREASE_INDEX],font,0,display) < 0){
     	puts("failed creating brush- button");
     	return -1;
     }
