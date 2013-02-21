@@ -7,6 +7,7 @@
 
 #include "menu.h"
 #include "bitfont.h"
+#include "dialog.h"
 
 typedef struct{
 	void * memShareAddr;	//Pointer to shared memory between network and graphics
@@ -17,6 +18,7 @@ typedef struct{
 	Menu * menu;			//The menu of the module
 	BitFont * font;			//Bitmap engine for font creation
 	int stopFlag;			//Whether the module should continue or not
+	Dialog * dialog;
 } GraphicModule;
 
 /*Set's a pixel on the screen at the x,y coordinates to the r g b value.

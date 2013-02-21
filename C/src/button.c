@@ -50,6 +50,7 @@ void freeButton(ShadedButton * button){
 	free(button->text);
 	//Note that this assumes the button's memory was malloced
 	free(button);
+	return;
 }
 
 
@@ -75,7 +76,7 @@ void hideButton(ShadedButton * button, SDL_Surface * screen){
 	SDL_FillRect(screen, &backRect, btnBackColor);
 
 	button->visible = 0;
-
+	return;
 }
 
 void drawShadedButton(ShadedButton * button, SDL_Surface *screen){
@@ -141,5 +142,5 @@ void drawShadedButton(ShadedButton * button, SDL_Surface *screen){
 
     //Text handling should go here since it should be drawn on top of the rest of the button
   	//Not implemented yet because I haven't decided how to handle fonts yet
-    
+    return;
 }

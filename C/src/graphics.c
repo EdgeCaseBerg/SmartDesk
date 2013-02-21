@@ -28,6 +28,7 @@
 #include "graphics.h"
 #include "menu.h"
 #include "bitfont.h"
+#include "dialog.h"
 
 //Global variables
 int mouseDown = 0;			           //True/False for if the mouse is 
@@ -101,6 +102,13 @@ int setupGraphicModule(int fd, GraphicModule * module){
         SDL_Quit();
         return -1;
     }
+
+    module->dialog = malloc(sizeof(Dialog*));
+    if(createDialog(module->dialog, "DEBUG", 1, SCREENWIDTH/2 - STANDARD_DIALOG_WIDTH/2, 150, module->screen, module->font) < 0){
+        puts("Failed to make dialog");
+        return -1;
+    }
+    
 
     //Set the stop flag
     module->stopFlag = 0;
@@ -227,6 +235,7 @@ void runGraphics(GraphicModule * module){
         //Since smoothing is a preprocessor, if it's set to !1 then this call
         //should be optimized out by the compiler
         drawBuffered(module->drawing);
+        drawDialog(module->dialog,module->screen);
         //Move the drawn bits onto the screen
         SDL_BlitSurface(module->drawing,NULL,module->screen,NULL);
         drawUI(module);   
@@ -286,6 +295,7 @@ void handleGraphicEvent(SDL_Event  event, GraphicModule * module){
 }
 
 void handleKeyEvent(SDL_Event  event, GraphicModule * module){
+
 	switch( event.key.keysym.sym ){
 		case SDLK_ESCAPE:
 	    	module->stopFlag = 1;
@@ -293,6 +303,10 @@ void handleKeyEvent(SDL_Event  event, GraphicModule * module){
         case SDLK_F1:
             clearScreen(module->screen);
             clearScreen(module->drawing);
+            break;
+        case SDLK_F2:
+            puts("clicky");
+            drawDialog(module->dialog,module->drawing);
             break;
         default:
             break;
