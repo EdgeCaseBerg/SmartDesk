@@ -143,8 +143,6 @@ void drawMenu(SDL_Surface *screen, Menu * menu){
 				submenuoutline.w = BUTTON_WIDTH + BUTTONBACKGROUNDOFFSET*2;
 				submenuoutline.h = submenu.h + BUTTON_VERTICAL_OFFSET;
 				if(menu->buttons[BRUSH_BUTTON_INDEX]->clicked != 0){
-					//This will clear it, but we'll lose the pixels underneath if they drew
-					//There must be a way to do this... (maybe copy the old pixels to something?)
 					divColor = 0xFFFFFF;
 					backColor = 0xFFFFFF;
 					menu->buttons[BRUSH_INCREASE_INDEX]->visible = 1;

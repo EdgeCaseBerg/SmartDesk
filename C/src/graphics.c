@@ -292,6 +292,7 @@ void handleKeyEvent(SDL_Event  event, GraphicModule * module){
 	    	break;
         case SDLK_F1:
             clearScreen(module->screen);
+            clearScreen(module->drawing);
             break;
         default:
             break;
@@ -307,6 +308,7 @@ void handleButtonClick(GraphicModule * module, int buttonID){
         case BRUSH_BUTTON_INDEX:
             if(module->menu->subMenuActive != 0){
                 module->menu->subMenuActive = 0;
+                //It is important to hide onto the screen
                 hideButton(module->menu->buttons[BRUSH_INCREASE_INDEX],module->screen);
                 hideButton(module->menu->buttons[BRUSH_DECREASE_INDEX],module->screen);
             }else{
@@ -344,7 +346,6 @@ void handleMouseEvent(SDL_Event event, GraphicModule * module){
                 if(module->menu->buttons[button]->clicked == 1){
                     //We just finished clicking and are about to change back to a hover state
                     handleButtonClick(module, button);
-
                 }
                 module->menu->buttons[button]->clicked = 0;
                 module->menu->buttons[button]->hover = 1;
