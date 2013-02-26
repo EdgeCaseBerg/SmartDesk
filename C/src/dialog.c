@@ -26,7 +26,8 @@
 *	returns -1 if the dialog fails to be created, 0 otherwise
 */
 int createDialog(Dialog * dialog, char * text, int visible, int x, int y, const SDL_Surface * display, BitFont * font){
-	dialog->surface = createSurface(SDL_SWSURFACE, STANDARD_DIALOG_WIDTH, STANDARD_DIALOG_HEIGHT, display);
+	const SDL_PixelFormat fmt = *(display->format);
+	dialog->surface = SDL_CreateRGBSurface(SDL_SWSURFACE,STANDARD_DIALOG_WIDTH,STANDARD_DIALOG_HEIGHT,fmt.BitsPerPixel,fmt.Rmask,fmt.Gmask,fmt.Bmask,fmt.Amask );
 	dialog->visible = visible;
 	dialog->location.x = x;
 	dialog->location.y = y;
@@ -35,18 +36,17 @@ int createDialog(Dialog * dialog, char * text, int visible, int x, int y, const 
 	dialog->font = font;
 	dialog->text = text;
 	//create buttons
-	dialog->buttons[CONFIRM_CLICK] = malloc(sizeof(ShadedButton*));
+	dialog->buttons[CONFIRM_CLICK] = malloc(sizeof(ShadedButton));
 	if(setupShadedButton(CONFIRM_X_LOCATION, DIALOG_BUTTON_VERTICAL_LOCATION, DIALOG_BUTTON_WIDTH, DIALOG_BUTTON_HEIGHT, 60, 60, 60, "Confirm" ,dialog->buttons[CONFIRM_CLICK], font, 1, display ) < 0){
 		puts("Failed setting up confirm button in dialog");
 		return -1;
 	}
 
-	dialog->buttons[CANCEL_CLICK] = malloc(sizeof(ShadedButton*));
+	dialog->buttons[CANCEL_CLICK] = malloc(sizeof(ShadedButton));
 	if(setupShadedButton(CANCEL_X_LOCATION, DIALOG_BUTTON_VERTICAL_LOCATION, DIALOG_BUTTON_WIDTH, DIALOG_BUTTON_HEIGHT, 60, 60, 60, "Cancel", dialog->buttons[CANCEL_CLICK], font, 1, display ) < 0){
 		puts("Failed setting up cancel button in dialog");
 		return -1;
 	}
-	printf("%p\n",dialog);
 	if(SDL_MUSTLOCK(dialog->surface)) 
     {
         if(SDL_LockSurface(dialog->surface) < 0){

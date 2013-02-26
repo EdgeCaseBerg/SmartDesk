@@ -90,7 +90,7 @@ int setupGraphicModule(int fd, GraphicModule * module){
    
     //Load the bitmap engine within the module
     
-    module->font = malloc(sizeof(BitFont*));
+    module->font = malloc(sizeof(BitFont));
     if(setupBitFont(module->font) < 0){
         puts("Failed to create the bitmap engine");
         SDL_Quit();
@@ -103,7 +103,7 @@ int setupGraphicModule(int fd, GraphicModule * module){
         return -1;
     }
 
-    module->dialog = malloc(sizeof(Dialog*));
+    module->dialog = malloc(sizeof(Dialog));
     if(createDialog(module->dialog, "DEBUG", 1, SCREENWIDTH/2 - STANDARD_DIALOG_WIDTH/2, 150, module->screen, module->font) < 0){
         puts("Failed to make dialog");
         return -1;
