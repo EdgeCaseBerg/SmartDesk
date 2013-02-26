@@ -26,6 +26,7 @@
 *	returns -1 if the dialog fails to be created, 0 otherwise
 */
 int createDialog(Dialog * dialog, char * text, int visible, int x, int y, const SDL_Surface * display, BitFont * font){
+	dialog->surface = 0;
 	const SDL_PixelFormat fmt = *(display->format);
 	dialog->surface = SDL_CreateRGBSurface(SDL_SWSURFACE,STANDARD_DIALOG_WIDTH,STANDARD_DIALOG_HEIGHT,fmt.BitsPerPixel,fmt.Rmask,fmt.Gmask,fmt.Bmask,fmt.Amask );
 	dialog->visible = visible;
@@ -47,24 +48,26 @@ int createDialog(Dialog * dialog, char * text, int visible, int x, int y, const 
 		puts("Failed setting up cancel button in dialog");
 		return -1;
 	}
-	if(SDL_MUSTLOCK(dialog->surface)) 
-    {
+
+	if(SDL_MUSTLOCK(dialog->surface)){
         if(SDL_LockSurface(dialog->surface) < 0){
         	return -1;	
         } 
     }
 
-	//Color in the dialog
-	SDL_FillRect(dialog->surface, NULL, 0xF00FFF);
-	SDL_Rect temp;
-	temp.x = BUTTONBACKGROUNDOFFSET;
-	temp.y = BUTTONBACKGROUNDOFFSET;
-	temp.w = STANDARD_DIALOG_WIDTH - BUTTONBACKGROUNDOFFSET;
-	temp.y = STANDARD_DIALOG_HEIGHT - BUTTONBACKGROUNDOFFSET;
-	SDL_FillRect(dialog->surface, &temp, DIALOG_COLOR);
+		//Color in the dialog
+		SDL_FillRect(dialog->surface, NULL, 0xF00FFF);
+		SDL_Rect temp;
+		temp.x = BUTTONBACKGROUNDOFFSET;
+		temp.y = BUTTONBACKGROUNDOFFSET;
+		temp.w = STANDARD_DIALOG_WIDTH - BUTTONBACKGROUNDOFFSET;
+		temp.y = STANDARD_DIALOG_HEIGHT - BUTTONBACKGROUNDOFFSET;
+		SDL_FillRect(dialog->surface, &temp, 0xD3D3D3);
 
 	//Add some nice lines to the dialog for looks
-	if(SDL_MUSTLOCK(dialog->surface)) SDL_UnlockSurface(dialog->surface);
+	if(SDL_MUSTLOCK(dialog->surface)){
+	 	SDL_UnlockSurface(dialog->surface);
+	}
   
 
 	return 0;
@@ -116,7 +119,7 @@ void freeDialog(Dialog * dialog){
 	SDL_FreeSurface(dialog->surface);
 	int i;
 	for(i=0; i < 2; i++){
-		free(dialog->buttons[i]);
+		SDL_FreeSurface(dialog->buttons[i]);
 	}
 	return;
 }

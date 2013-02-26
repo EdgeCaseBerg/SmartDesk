@@ -42,6 +42,8 @@ void freeGraphicModule(GraphicModule * module){
     free(module->font);
     freeMenu(module->menu);
     free(module->menu);
+    free(module->dialog);
+    freeBitFont(module->font);
 }
 
 //Returns -1 on failure, 0 on success, sets up the module

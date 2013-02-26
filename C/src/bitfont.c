@@ -13,17 +13,19 @@
 
 int setupBitFont(BitFont * font){
 	//Load the image
-	font->bitmap = SDL_LoadBMP(BITMAPFILE);
-	if(font->bitmap == NULL){
+	SDL_Surface * temp;
+	temp = SDL_LoadBMP(BITMAPFILE);
+	if(temp == NULL){
 		perror("Failed loading BMP files");
 		return -1;
 	}else{
 		//Optimize the image for fast blitting
-		if(SDL_SetColorKey(font->bitmap, SDL_SRCCOLORKEY | SDL_RLEACCEL, 0x000000) <0){
+		if(SDL_SetColorKey(temp, SDL_SRCCOLORKEY | SDL_RLEACCEL, 0x000000) <0){
 			puts("Failed setting the color key");
 			return -1;
 		}
-		font->bitmap = SDL_DisplayFormat(font->bitmap);
+		font->bitmap = SDL_DisplayFormat(temp);
+		SDL_FreeSurface(temp);
 	}
 
 	buildFontFromImage(font);
@@ -33,4 +35,8 @@ int setupBitFont(BitFont * font){
 
 void buildFontFromImage(BitFont * font){
 
+}
+
+void freeBitFont(BitFont * font){
+	
 }
